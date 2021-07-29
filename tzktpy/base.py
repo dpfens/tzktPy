@@ -17,6 +17,11 @@ class Base(object):
     pagination_parameters = ('sort', 'offset', 'limit')
 
     @classmethod
+    def tez(cls, mutez):
+        multiplier = 1000000.0
+        return mutez / multiplier
+
+    @classmethod
     def prepare_modifiers(cls, parameters, **kwargs):
         include = kwargs.get('include', [])
         exclude = kwargs.get('exclude', [])

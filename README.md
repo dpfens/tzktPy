@@ -13,7 +13,7 @@ python setup.py install
 ```python
 import tzktpy as tzkt
 
-address = 'tz...'
+address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
 account = tzkt.account.Account.by_address(address)
 ```
 
@@ -27,6 +27,7 @@ tzktPy comes with a few executable scripts for simple/common tasks:
 *  `balance` - Fetches the balance history of the given account
 *  `block` - Fetches the designated block and associated information
 *  `head` - Fetches the current head of the blockchain
+*  `operation` - Fetches transaction operations involving the given account address
 *  `protocol` - Fetches the current protocol
 *  `quote` - Fetches the current price of a Tez in USD and EUR.
 *  `reward` - Fetches the rewards given to a baker/delegator
