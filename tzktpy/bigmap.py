@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('BigMap', 'BigMapType', 'BigMapKey', 'BigMapUpdate')
 
 
 class BigMap(Base):
@@ -45,12 +46,11 @@ class BigMap(Base):
     def get(cls, **kwargs):
         path = 'v1/bigmaps'
         params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['contract', 'path', 'lastLevel']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-        optional_tag_params = cls.get_multicomparator_fields(kwargs, ['tags'], cls.set_suffixes)
+        optional_base_params = ['contract', 'path', 'lastLevel', 'tags']
+        params, parsed_params = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        for param in parsed_params.get('tags', []):
+            params[params] = ','.join(params[param])
 
-        params.update(optional_params)
-        params.update(optional_tag_params)
         if 'active' in params:
             params['active'] = kwargs.pop('active', None)
 
@@ -71,13 +71,14 @@ class BigMap(Base):
             params['micheline'] = micheline
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
-        return BigMap.from_api(data)
+        return cls.from_api(data)
 
     @classmethod
     def by_contract(cls, address, **kwargs):
         path = 'v1/contracts/%s/bigmaps' % address
-        params = cls.get_pagination_parameters(kwargs)
-        optional_tag_params = cls.get_multicomparator_fields(kwargs, ['tags'], cls.set_suffixes)
+        params, parsed_params = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        for param in parsed_params.get('tags', []):
+            params[params] = ','.join(params[param])
 
         params.update(optional_tag_params)
         micheline = kwargs.pop('micheline', None)
@@ -160,16 +161,11 @@ class BigMapUpdate(Base):
     @classmethod
     def get(cls, **kwargs):
         path = 'v1/bigmaps/updates'
-        params = cls.get_pagination_parameters(kwargs)
+        params, param_mappings = cls.prepare_modifiers(kwargs)
         optional_base_params = ['bigmap', 'path', 'contract', 'action', 'value', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-        optional_tag_params = cls.get_multicomparator_fields(kwargs, ['tags'], cls.set_suffixes)
+        for param in param_mappings.get('tags', []):
+            params[param] = ','.join(params[param])
 
-        params.update(optional_params)
-        params.update(optional_tag_params)
-        micheline = kwargs.pop('micheline', None)
-        if micheline is not None:
-            params['micheline'] = micheline
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]
@@ -203,16 +199,8 @@ class BigMapKey(Base):
     @classmethod
     def by_bigmap(cls, id, **kwargs):
         path = 'v1/bigmaps/%s/keys' % id
-        params = cls.get_pagination_parameters(kwargs)
+        params, _ = cls.prepare_modifiers(kwargs)
         optional_base_params = ['key', 'value', 'lastLevel']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        params.update(optional_params)
-        if 'active' in kwargs:
-            params['active'] = kwargs.pop('active', None)
-        micheline = kwargs.pop('micheline', None)
-        if micheline is not None:
-            params['micheline'] = micheline
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]

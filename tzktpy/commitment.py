@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Commitment', )
 
 
 class Commitment(Base):
@@ -33,14 +34,7 @@ class Commitment(Base):
         path = 'v1/commitments'
         pagination_params = cls.get_pagination_parameters(kwargs)
         optional_base_params = ['activationLevel', 'balance']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-        if 'activated' in kwargs:
-            params['activated'] = kwargs.pop('activated')
-
+        params, _ = cls.prepare_modifiers(kwargs)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]
@@ -49,11 +43,7 @@ class Commitment(Base):
     def count(cls, **kwargs):
         path = 'v1/commitments/count'
         optional_base_params = ['balance']
-        params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        if 'activated' in kwargs:
-            params['activated'] = kwargs.pop('activated')
-
+        params, _ = cls.prepare_modifiers(kwargs)
         response = cls._request(path, params=params, **kwargs)
         value = response.content
         return int(value)
@@ -67,5 +57,7 @@ class Commitment(Base):
 
 
 if __name__ == '__main__':
+    commitment_count = Commitment.count()
+    print('Total commitments: %r' % commitment_count)
     commitments = Commitment.get()
     print(commitments)

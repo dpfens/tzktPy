@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Software', )
 
 
 class Software(Base):

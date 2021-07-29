@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Block', )
 
 
 class Block(Base):
@@ -70,18 +71,8 @@ class Block(Base):
     @classmethod
     def get(cls, **kwargs):
         path = 'v1/blocks'
-        pagination_params = cls.get_pagination_parameters(kwargs)
         optional_base_params = ['baker', 'level', 'priority', 'quote']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        params, _ = cls.prepare_modifiers(kwargs)
         response = cls._request(path, params)
         data = response.json()
         return [cls.from_api(item) for item in data]

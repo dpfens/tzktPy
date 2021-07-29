@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Proposal', 'VotingEpoch', 'VotingPeriod', 'PeriodVoter')
 
 
 class Proposal(Base):
@@ -47,9 +48,8 @@ class Proposal(Base):
     @classmethod
     def get(cls, **kwargs):
         path = 'v1/voting/proposals'
-        params = cls.get_pagination_parameters(kwargs)
-        optional_params = cls.get_comparator_fields(kwargs, ['epoch'], cls.comparator_suffixes)
-        params.update(optional_params)
+        optional_base_params = ['epoch'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]

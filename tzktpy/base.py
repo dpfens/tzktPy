@@ -9,42 +9,40 @@ class Base(object):
     datetime_ms_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 
     comparator_notation = '%s__%s'
+    comparator_modifier_delimiter = '__'
     comparator_suffixes = ('eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni', 'un', 'as', 'null')
     set_suffixes = ('eq', 'any', 'all')
     offset_suffixes = ('el', 'pg', 'cr')
     sort_suffixes = ('asc', 'desc')
+    pagination_parameters = ('sort', 'offset', 'limit')
 
     @classmethod
-    def get_comparator_fields(cls, parameters, fields, suffixes):
-        output = dict()
-        for field in fields:
-            if field in parameters:
-                output[field] = parameters.pop(field)
+    def prepare_modifiers(cls, parameters, **kwargs):
+        include = kwargs.get('include', [])
+        exclude = kwargs.get('exclude', [])
+        ignore = kwargs.get('ignore', [])
+        ignore.append('domain')
+        mappings = dict()
+        output_params = dict()
+        invalid_parameters = []
+        keys = list(parameters.keys())
+        for parameter in keys:
+            param_parts = parameter.split(cls.comparator_modifier_delimiter)
+            new_param = '.'.join(param_parts)
+            base_param = param_parts[0]
+            is_ignore = base_param in ignore
+            is_invalid = base_param in exclude or (include and base_param not in include)
+            if is_ignore or is_invalid:
+                if not is_ignore:
+                    invalid_parameters.append(base_param)
                 continue
+            output_params[new_param] = parameters.pop(parameter)
+            mappings.setdefault(base_param, [])
+            mappings[base_param].append(new_param)
 
-            for suffix in suffixes:
-                field_name = cls.comparator_notation % (field, suffix)
-                if field_name in parameters:
-                    output['%s.%s' % (field, suffix)] = parameters.pop(field_name)
-
-        return output
-
-    @classmethod
-    def get_multicomparator_fields(cls, parameters, fields, suffixes):
-        output = dict()
-        for field in fields:
-            if field in parameters:
-                values = parameters.pop(field)
-                output[field] = ','.join(values)
-                continue
-
-            for suffix in suffixes:
-                field_name = cls.comparator_notation % (field, suffix)
-                if field_name in parameters:
-                    values = parameters.pop(field_name)
-                    output['%s.%s' % (field, suffix)] = ','.join(values)
-
-        return output
+        if invalid_parameters:
+            raise ValueError('The following parameters are invalid: %s' % ', '.join(invalid_parameters))
+        return output_params, mappings
 
     @classmethod
     def get_pagination_parameters(cls, parameters):

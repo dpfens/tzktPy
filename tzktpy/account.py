@@ -1,10 +1,10 @@
 from .base import Base
-
+__all__ = ('AccountMetadata',' AccountBase', 'Account')
 
 class AccountMetadata:
     __slots__ = ('kind', 'alias', 'address', 'balance', 'delegate', 'creationLevel', 'creationTime')
 
-    def __init__(kind, alias, address, balance, delegate, creation_level, creation_time):
+    def __init__(self, kind, alias, address, balance, delegate, creation_level, creation_time):
         self.kind = kind
         self.alias = alias
         self.address = address
@@ -106,18 +106,8 @@ class Account(AccountBase):
     @classmethod
     def get(cls, **kwargs):
         path = 'v1/accounts'
-        pagination_params = cls.get_pagination_parameters(kwargs)
         optional_base_params = ['type', 'kind', 'delegate', 'balance', 'staked']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['lastActivity'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params.pop(param)
-            params[param] = value.isoformat()
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]
@@ -126,8 +116,8 @@ class Account(AccountBase):
     def count(cls, **kwargs):
         path = 'v1/accounts/count'
         optional_base_params = ['type', 'kind', 'balance', 'staked']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-        response = cls._request(path, params=optional_params)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        response = cls._request(path, params=params)
         data = response.content
         return data
 

@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Right', )
 
 
 class Right(Base):
@@ -34,14 +35,9 @@ class Right(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        optional_params = ['type', 'baker', 'cycle', 'level', 'slots', 'priority', 'status'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_params)
         path = 'v1/rights'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['type', 'baker', 'cycle', 'level', 'slots', 'priority',' status']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]
@@ -49,8 +45,8 @@ class Right(Base):
     @classmethod
     def count(cls, **kwargs):
         path = 'v1/rights/count'
-        optional_params = ['type', 'baker', 'cycle', 'level', 'slots', 'priority',' status']
-        params = cls.get_comparator_fields(kwargs, optional_params, cls.comparator_suffixes)
+        optional_params = ['type', 'baker', 'cycle', 'level', 'slots', 'priority', 'status'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.content
         return int(data)

@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Reward', )
 
 
 class Reward(Base):
@@ -120,16 +121,7 @@ class Reward(Base):
     @classmethod
     def by_baker(cls, address, **kwargs):
         path = 'v1/rewards/bakers/%s' % address
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_params = cls.get_comparator_fields(kwargs, ['cycle'], cls.comparator_suffixes)
-
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        quote = kwargs.pop('quote', None)
-        if quote:
-            params['quote'] = quote
+        params, _ = cls.prepare_modifiers(kwargs, include=cls.pagination_parameters)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -158,17 +150,7 @@ class Reward(Base):
     @classmethod
     def by_delegator(cls, address, **kwargs):
         path = 'v1/rewards/delegators/%s' % address
-
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_params = cls.get_comparator_fields(kwargs, ['cycle'], cls.comparator_suffixes)
-
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        quote = kwargs.pop('quote', None)
-        if quote:
-            params['quote'] = quote
+        params, _ = cls.prepare_modifiers(kwargs, include=cls.pagination_parameters)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -177,7 +159,7 @@ class Reward(Base):
     @classmethod
     def by_delegator_cycle(cls, address, cycle, **kwargs):
         path = 'v1/rewards/delegators/%s/%s' % (address, cycle)
-
+        params = dict()
         quote = kwargs.pop('quote', None)
         if quote:
             params['quote'] = quote
@@ -189,7 +171,7 @@ class Reward(Base):
     @classmethod
     def baker_reward_splits(cls, address, cycle, **kwargs):
         path = 'v1/rewards/split/%s/%s' % (address, cycle)
-        params = cls.get_pagination_parameters(kwargs)
+        params, _ = cls.prepare_modifiers(kwargs, include=cls.pagination_parameters)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return Reward.from_api(data)

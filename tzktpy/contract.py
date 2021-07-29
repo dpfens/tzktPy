@@ -1,5 +1,6 @@
 from .base import Base
 from . import account
+__all__ = ('EntryPoint', 'Contract')
 
 
 class EntryPoint(Base):
@@ -90,17 +91,8 @@ class Contract(account.AccountBase):
     @classmethod
     def get(cls, **kwargs):
         path = 'v1/contracts'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['kind', 'creator', 'manager', 'delegate', 'lastActivity', 'typeHash', 'codeHash']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        include_storage = kwargs.pop('includeStorage', False)
-        if include_storage:
-            params['includeStorage'] = include_storage
+        optional_base_params = ['kind', 'creator', 'manager', 'delegate', 'lastActivity', 'typeHash', 'codeHash'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -109,7 +101,7 @@ class Contract(account.AccountBase):
     @classmethod
     def by_account(cls, address, **kwargs):
         path = 'v1/accounts/%s/contracts' % address
-        params = cls.get_pagination_parameters(kwargs)
+        params, _ = cls.prepare_modifiers(kwargs, include=cls.pagination_parameters)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]

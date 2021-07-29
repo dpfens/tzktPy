@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Quote', )
 
 
 class Quote(Base):
@@ -44,17 +45,8 @@ class Quote(Base):
     @classmethod
     def get(cls, **kwargs):
         path = 'v1/quotes'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_params = cls.get_comparator_fields(kwargs, ['level'], cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]

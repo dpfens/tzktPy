@@ -1,6 +1,8 @@
 from .base import Base
 from . import account
 
+__all__ = ('ShortSoftware', 'Delegate')
+
 
 class ShortSoftware(Base):
     __slots__ = ('version', 'date')
@@ -90,15 +92,8 @@ class Delegate(account.AccountBase):
     @classmethod
     def get(cls, **kwargs):
         path = 'v1/delegates'
-        params = cls.get_pagination_parameters(kwargs)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['lastActivity'], cls.comparator_suffixes)
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
-
-        if 'active' in kwargs:
-            params['active'] = kwargs.pop('active')
+        optional_base_params = ['active', 'lastActivity'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]

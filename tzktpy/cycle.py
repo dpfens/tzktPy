@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Cycle', )
 
 
 class Cycle(Base):
@@ -48,17 +49,8 @@ class Cycle(Base):
 
     @classmethod
     def get(cls, **kwargs):
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['snapshotIndex']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-        quote = kwargs.pop('quote', None)
-        if quote:
-            params['quote'] = quote
-
+        optional_base_params = ['snapshotIndex'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         path = 'v1/cycles'
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -84,8 +76,24 @@ class Cycle(Base):
 
 
 if __name__ == '__main__':
-    cycle_count = Cycle.count()
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Fetch cycles by snapshotIndex')
+    parser.add_argument('-d', '--domain', type=str, default=Cycle.domain, help='tzKT domain to fetch data from')
+    parser.add_argument('-l', '--limit', type=str, default=10000, help='Maximum number of cycles to return')
+
+    parser.add_argument('--lt', type=int, help='Fetch cycles less than the given snapshotIndex')
+    parser.add_argument('--gt', type=int, help='Fetch cycles greater than the given snapshotIndex')
+
+    args = parser.parse_args()
+    kwargs = dict(domain=args.domain)
+    cycle_count = Cycle.count(**kwargs)
+    if args.lt:
+        kwargs['snapshotIndex__lt'] = args.lt
+    if args.gt:
+        kwargs['snapshotIndex__gt'] = args.gt
+    kwargs['limit'] = args.limit
     print('Total Cycles: %i' % cycle_count)
-    cycles = Cycle.get()
+    cycles = Cycle.get(**kwargs)
     for cycle in cycles:
         print(cycle)

@@ -1,8 +1,17 @@
 # tzktPy
 A Python wrapper for the tzKT API
 
-## Usage
+## Install
+To install `tzktpy` execute the following commands:
+```bash
+git clone git@github.com:dpfens/tzktPy.git
+cd tzktPy
+python setup.py install
+```
 
+## Usage
+```python
+```
 
 ## Scripts
 tzktPy comes with a few executable scripts for simple/common tasks:

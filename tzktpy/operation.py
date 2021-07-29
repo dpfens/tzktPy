@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Operation', )
 
 
 class Operation(Base):
@@ -42,7 +43,7 @@ class Operation(Base):
     def by_hash(cls, hash, **kwargs):
         path = 'v1/operations/%s' % hash
         params = dict()
-        quote = kwargs.get('quote')
+        quote = kwargs.pop('quote', None)
         if quote:
             params['quote'] = quote
 
@@ -60,7 +61,7 @@ class Operation(Base):
         if micheline:
             params['micheline'] = micheline
 
-        quote = kwargs.get('quote', None)
+        quote = kwargs.pop('quote', None)
         if quote:
             params['quote'] = quote
         response = cls._request(path, params=params, **kwargs)
@@ -71,11 +72,8 @@ class Operation(Base):
     @classmethod
     def by_account(cls, address, **kwargs):
         path = 'v1/accounts/%s/operations' % address
-
-        valid_parameters = set(['type', 'initiator', 'target', 'prevDelegate', 'newDelegate', 'contractManager', 'contractDelegate', 'originatedContract', 'accuser', 'offender', 'baker', 'level', 'timestamp', 'entrypoint', 'parameter', 'status', 'lastId', 'limit', 'micheline', 'quote'])
-        valid_included_parameters = set(kwargs) & valid_parameters
-
-        params = dict((key, kwargs[key]) for key in valid_included_parameters)
+        optional_base_params = ['type', 'initiator', 'target', 'prevDelegate', 'newDelegate', 'contractManager', 'contractDelegate', 'originatedContract', 'accuser', 'offender', 'baker', 'level', 'timestamp', 'entrypoint', 'parameter', 'status', 'lastId'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         output = [cls.from_api(item) for item in data]
@@ -85,7 +83,7 @@ class Operation(Base):
     def _type_by_hash(cls, type, **kwargs):
         path = 'v1/operations/%s/%s' % (type, hash)
         params = dict()
-        quote = kwargs.get('quote')
+        quote = kwargs.pop('quote', None)
         if quote:
             params['quote'] = quote
         response = cls._request(path, params=params, **kwargs)
@@ -96,14 +94,8 @@ class Operation(Base):
     @classmethod
     def _type_count(cls, type, **kwargs):
         params = dict()
-        level = kwargs.get('level')
-        if level:
-            params['level'] = level
-
-        timestamp = kwargs.get('timestamp')
-        if timestamp:
-            params['timestamp'] = timestamp.isoformat()
-
+        optional_base_params = ['level', 'timestamp', 'quote']
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         path = 'v1/operations/%s/count' % type
         response = cls._request(path, params=params, **kwargs)
         raw_count = response.content
@@ -112,18 +104,8 @@ class Operation(Base):
     @classmethod
     def get_endorsements(cls, **kwargs):
         path = 'v1/operations/endorsements/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['delegate', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['delegate', 'level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -141,18 +123,8 @@ class Operation(Base):
     @classmethod
     def get_ballots(cls, **kwargs):
         path = 'v1/operations/ballots/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['delegate', 'level', 'epoch', 'period']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['delegate', 'level', 'epoch', 'period', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -170,18 +142,8 @@ class Operation(Base):
     @classmethod
     def get_proposals(cls, **kwargs):
         path = 'v1/operations/proposals/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['delegate', 'level', 'epoch', 'period']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['delegate', 'level', 'epoch', 'period', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -199,18 +161,8 @@ class Operation(Base):
     @classmethod
     def get_activations(cls, **kwargs):
         path = 'v1/operations/activations/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['account', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['account', 'level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -228,18 +180,8 @@ class Operation(Base):
     @classmethod
     def get_double_bakings(cls, **kwargs):
         path = 'v1/operations/double_baking/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['accuser', 'offender', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['anyof', 'accuser', 'offender', 'level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -257,18 +199,8 @@ class Operation(Base):
     @classmethod
     def get_double_endorsings(cls, **kwargs):
         path = 'v1/operations/double_endorsing/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['accuser', 'offender', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['anyof', 'accuser', 'offender', 'level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -286,18 +218,8 @@ class Operation(Base):
     @classmethod
     def get_nonce_revelations(cls, **kwargs):
         path = 'v1/operations/nonce_revelations/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['baker', 'sender', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['anyof', 'baker', 'sender', 'level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -315,18 +237,8 @@ class Operation(Base):
     @classmethod
     def get_delegations(cls, **kwargs):
         path = 'v1/operations/delegations/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['initiator', 'sender', 'prevDelegate', 'newDelegate', 'level', 'status']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['anyof', 'initiator', 'sender', 'prevDelegate', 'newDelegate', 'level', 'status', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -344,18 +256,8 @@ class Operation(Base):
     @classmethod
     def get_originations(cls, **kwargs):
         path = 'v1/operations/originations/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['initiator', 'sender', 'contractManager', 'contractDelegate', 'originatedContract', 'typeHash', 'codeHash', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['anyof', 'initiator', 'sender', 'contractManager', 'contractDelegate', 'originatedContract', 'typeHash', 'codeHash', 'level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -373,18 +275,8 @@ class Operation(Base):
     @classmethod
     def get_transactions(cls, **kwargs):
         path = 'v1/operations/transactions/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['initiator', 'sender', 'target', 'amount', 'level', 'entrypoint', 'parameter', 'status']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['anyof', 'initiator', 'sender', 'target', 'amount', 'level', 'entrypoint', 'parameter', 'status', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -402,18 +294,8 @@ class Operation(Base):
     @classmethod
     def get_reveals(cls, **kwargs):
         path = 'v1/operations/reveals/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['sender', 'level',  'status']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['sender', 'level',  'status', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -431,18 +313,8 @@ class Operation(Base):
     @classmethod
     def get_migrations(cls, **kwargs):
         path = 'v1/operations/migrations/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['account', 'kind', 'balanceChange', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['account', 'kind', 'balanceChange', 'level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -460,18 +332,8 @@ class Operation(Base):
     @classmethod
     def get_revelation_penalties(cls, **kwargs):
         path = 'v1/operations/revelation_penalties/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['baker', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['baker', 'level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
 
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -489,19 +351,8 @@ class Operation(Base):
     @classmethod
     def get_bakings(cls, **kwargs):
         path = 'v1/operations/baking/'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['baker', 'level']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
-
+        optional_base_params = ['baker', 'level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         output = [cls.from_api(item) for item in data]
@@ -518,6 +369,7 @@ class Operation(Base):
 
 if __name__ == '__main__':
     import datetime
-    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+    yesterday = datetime.datetime.now() - datetime.timedelta(minutes=1)
     bakings = Operation.get_bakings(timestamp__gt=yesterday, limit=10000)
     print(bakings)
+    print(len(bakings))

@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Operation', )
 
 
 class Protocol(Base):
@@ -40,8 +41,8 @@ class Protocol(Base):
     @classmethod
     def get(cls, **kwargs):
         path = 'v1/protocols'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        response = cls._request(path, params=pagination_params)
+        params, _ = cls.prepare_modifiers(kwargs, include=cls.pagination_parameters)
+        response = cls._request(path, params=params)
         data = response.json()
         return [cls.from_api(item) for item in data]
 

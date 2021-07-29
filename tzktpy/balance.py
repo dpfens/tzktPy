@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('BalanceShort', 'Balance')
 
 
 class BalanceShort(object):
@@ -88,16 +89,9 @@ class Balance(Base):
         delimiter = kwargs.pop('delimiter', 'comma')
         if delimiter not in delimiter_lookup:
             raise ValueError('%r is not a valid delimiter' % delimiter)
-        params = dict(delimiter=delimiter)
-        timestamp_params = cls.get_comparator_fields(kwargs, ['from', 'to'], cls.comparator_suffixes)
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        params, _ = cls.prepare_modifiers(kwargs, include=('from', 'to'))
+        params['delimiter'] = delimiter
 
-        optional_params = ('historical', 'currency')
-        for param in optional_params:
-            if param in kwargs:
-                params[param] = kwargs.pop(param)
         path = 'v1/accounts/%s/report' % address
         response = cls._request(path, params=params, **kwargs)
         raw_csv = response.content

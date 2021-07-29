@@ -1,4 +1,5 @@
 from .base import Base
+__all__ = ('Statistics', )
 
 
 class Statistics(Base):
@@ -52,18 +53,11 @@ class Statistics(Base):
     @classmethod
     def get(cls, **kwargs):
         path = 'v1/statistics'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['level', 'quote']
-        optional_params = cls.get_comparator_fields(kwargs, optional_base_params, cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['timestamp'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        optional_base_params = ['level', 'timestamp'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        quote = kwargs.get('quote')
+        if quote:
+            params['quote'] = quote
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]
@@ -71,36 +65,23 @@ class Statistics(Base):
     @classmethod
     def daily(cls, date, **kwargs):
         path = 'v1/statistics/daily'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_params = cls.get_comparator_fields(kwargs, ['quote'], cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['date'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        quote = kwargs.pop('quote', None)
+        optional_base_params = ['date'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        if quote:
+            params['quote'] = quote
         response = cls._request(path, params=params, **kwargs)
-        response = cls._request(path)
         data = response.json()
         return [cls.from_api(item) for item in data]
 
     @classmethod
     def cyclic(cls, **kwargs):
         path = 'v1/statistics/cyclic'
-        pagination_params = cls.get_pagination_parameters(kwargs)
-        optional_params = cls.get_comparator_fields(kwargs, ['cycle'], cls.comparator_suffixes)
-
-        timestamp_params = cls.get_comparator_fields(kwargs, ['date'], cls.comparator_suffixes)
-        params = dict()
-        params.update(pagination_params)
-        params.update(optional_params)
-
-        for param in timestamp_params:
-            value = timestamp_params[param]
-            params[param] = value.isoformat()
+        quote = kwargs.pop('quote', None)
+        optional_base_params = ['cycle'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        if quote:
+            params['quote'] = quote
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]
@@ -109,7 +90,7 @@ class Statistics(Base):
     def current(cls, **kwargs):
         path = 'v1/statistics/current'
         params = dict()
-        quote = kwargs.get('quote')
+        quote = kwargs.pop('quote', None)
         if quote:
             params['quote'] = quote
         response = cls._request(path, params=params, **kwargs)
@@ -120,7 +101,7 @@ class Statistics(Base):
 if __name__ == '__main__':
     import argparse
     from datetime import datetime
-    parser = argparse.ArgumentParser(description='Fetch statistics')
+    parser = argparse.ArgumentParser(description='Fetch statistics for a given cycle/date')
     parser.add_argument('-d', '--domain', type=str, default=Statistics.domain, help='tzKT domain to fetch data from')
     parser.add_argument('-l', '--limit', type=int, default=10000, help='maximum number of statistics')
 
