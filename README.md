@@ -11,6 +11,13 @@ python setup.py install
 
 ## Usage
 ```python
+import tzktpy as tzkt
+
+address = 'tz...'
+account = tzkt.account.Account.by_address(address)
+```
+
+```python
 ```
 
 ## Scripts
@@ -26,3 +33,10 @@ tzktPy comes with a few executable scripts for simple/common tasks:
 *  `software` - Lists the different versions of software used on the blockchain
 *  `statistics` - Fetch statistics for a given date/cycle
 *  `voting` - Fetches the current state of the proposal votes and the voters
+
+These scripts all in the following format:
+```bash
+python -m tzktpy.account <arguments>
+python -m tzktpy.balance <arguments>
+python -m tzktpy.balance <arguments>
+```

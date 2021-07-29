@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Fetch cycles by snapshotIndex')
     parser.add_argument('-d', '--domain', type=str, default=Cycle.domain, help='tzKT domain to fetch data from')
-    parser.add_argument('-l', '--limit', type=str, default=10000, help='Maximum number of cycles to return')
+    parser.add_argument('-l', '--limit', type=int, default=10000, help='Maximum number of cycles to return')
 
     parser.add_argument('--lt', type=int, help='Fetch cycles less than the given snapshotIndex')
     parser.add_argument('--gt', type=int, help='Fetch cycles greater than the given snapshotIndex')

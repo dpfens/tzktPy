@@ -18,7 +18,7 @@ class Operation(Base):
         self.quote = quote
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
     def __repr__(self):
         return '<%s %s type=%r, id=%r, level=%r, timestamp=%s, hash=%r>' % (self.__class__.__name__, id(self), self.type, self.id, self.level, self.timestamp, self.hash)
@@ -73,7 +73,10 @@ class Operation(Base):
     def by_account(cls, address, **kwargs):
         path = 'v1/accounts/%s/operations' % address
         optional_base_params = ['type', 'initiator', 'target', 'prevDelegate', 'newDelegate', 'contractManager', 'contractDelegate', 'originatedContract', 'accuser', 'offender', 'baker', 'level', 'timestamp', 'entrypoint', 'parameter', 'status', 'lastId'] + list(cls.pagination_parameters)
-        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        params, param_mappings = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        for param in param_mappings.get('type', []):
+            params[param] = ','.join(params[param])
+
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         output = [cls.from_api(item) for item in data]
@@ -368,8 +371,17 @@ class Operation(Base):
 
 
 if __name__ == '__main__':
-    import datetime
-    yesterday = datetime.datetime.now() - datetime.timedelta(minutes=1)
-    bakings = Operation.get_bakings(timestamp__gt=yesterday, limit=10000)
-    print(bakings)
-    print(len(bakings))
+    import argparse
+    parser = argparse.ArgumentParser(description='Fetch Operations performed by/on a Tezos account address')
+    parser.add_argument('-a', '--address', type=str, help='Address of account to report on')
+    parser.add_argument('-t', '--types', metavar='N', type=str, nargs='+', required=False, help='types of operations to fetch')
+    parser.add_argument('-l', '--limit', type=int, default=1000, help='Maximum number of operations to return')
+    parser.add_argument('--domain', type=str, default=Operation.domain, help='tzKT domain to fetch data from')
+
+    args = parser.parse_args()
+    kwargs = dict(domain=args.domain, limit=args.limit)
+    if args.types:
+        kwargs['type'] = args.types
+    operations = Operation.by_account(args.address, **kwargs)
+    for operation in operations:
+        print('%r' % operation)
