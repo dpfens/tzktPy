@@ -113,6 +113,22 @@ class Reward(Base):
 
     @classmethod
     def baker_count(cls, address, **kwargs):
+        """
+        Returns total number of cycles where the baker was active
+
+        Parameters:
+            address (str):  Baker address
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int
+
+        Examples:
+            >>> address = 'tz3S6BBeKgJGXxvLyZ1xzXzMPn11nnFtq5L9'
+            >>> baker_cycle_rewards_count = Reward.baker_count()
+        """
         path = 'v1/rewards/bakers/%s/count' % address
         response = cls._request(path, **kwargs)
         data = response.content
@@ -120,6 +136,26 @@ class Reward(Base):
 
     @classmethod
     def by_baker(cls, address, **kwargs):
+        """
+        Returns a list of baker rewards for every cycle, including future cycles.
+
+        Parameters:
+            address (str):  Baker address
+
+        Keyword Parameters:
+            cycle (int):  Filters rewards by cycle.  Supports standard modifiers.
+            sort (str):  Sorts cycle rewards by specified field. Supported fields: cycle (default, desc).  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Examples:
+            >>> address = 'tz3S6BBeKgJGXxvLyZ1xzXzMPn11nnFtq5L9'
+            >>> baker_cycle_rewards_count = Reward.by_baker(address)
+        """
         path = 'v1/rewards/bakers/%s' % address
         params, _ = cls.prepare_modifiers(kwargs, include=cls.pagination_parameters)
 
@@ -129,6 +165,24 @@ class Reward(Base):
 
     @classmethod
     def by_baker_cycle(cls, address, cycle, **kwargs):
+        """
+        Returns baker cycle rewards for the specified cycle.
+
+        Parameters:
+            address (str):  Baker address
+            cycle (int):  Rewards cycle
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Reward
+
+        Examples:
+            >>> address = 'tz3S6BBeKgJGXxvLyZ1xzXzMPn11nnFtq5L9'
+            >>> cycle = 10
+            >>> baker_cycle_rewards_count = Reward.by_baker_cycle(address, cycle)
+        """
         path = 'v1/rewards/bakers/%s/%s' % (address, cycle)
         params = dict()
 
@@ -142,6 +196,23 @@ class Reward(Base):
 
     @classmethod
     def delegator_count(cls, address, **kwargs):
+        """
+        Returns total number of cycles where the delegator was delegated to an active baker.
+
+        Parameters:
+            address (str):  Delegator address
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int
+
+        Examples:
+            >>> address = 'tz3S6BBeKgJGXxvLyZ1xzXzMPn11nnFtq5L9'
+            >>> cycle = 10
+            >>> delegator_cycle_count = Reward.delegator_count(address)
+        """
         path = 'v1/rewards/delegators/%s/count' % address
         response = cls._request(path, **kwargs)
         data = response.content
@@ -149,6 +220,26 @@ class Reward(Base):
 
     @classmethod
     def by_delegator(cls, address, **kwargs):
+        """
+        Returns a list of delegator rewards for every cycle, including future cycles.
+
+        Parameters:
+            address (str):  Delegator address
+
+        Keyword Parameters:
+            cycle (int):  Filters rewards by cycle.  Supports standard modifiers.
+            sort (str):  Sorts cycle rewards by specified field. Supported fields: cycle (default, desc).  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Examples:
+            >>> address = 'tz3S6BBeKgJGXxvLyZ1xzXzMPn11nnFtq5L9'
+            >>> delegator_cycle_rewards = Reward.by_delegator(address)
+        """
         path = 'v1/rewards/delegators/%s' % address
         params, _ = cls.prepare_modifiers(kwargs, include=cls.pagination_parameters)
 
@@ -158,6 +249,24 @@ class Reward(Base):
 
     @classmethod
     def by_delegator_cycle(cls, address, cycle, **kwargs):
+        """
+        Returns delegator cycle rewards for the specified cycle.
+
+        Parameters:
+            address (str):  Delegator address
+            cycle (int):  Rewards cycle
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Reward
+
+        Examples:
+            >>> address = 'tz3S6BBeKgJGXxvLyZ1xzXzMPn11nnFtq5L9'
+            >>> cycle = 10
+            >>> delegator_cycle_rewards = Reward.by_delegator_cycle(address, cycle)
+        """
         path = 'v1/rewards/delegators/%s/%s' % (address, cycle)
         params = dict()
         quote = kwargs.pop('quote', None)
@@ -170,6 +279,26 @@ class Reward(Base):
 
     @classmethod
     def baker_reward_splits(cls, address, cycle, **kwargs):
+        """
+        Returns baker rewards for the specified cycle with all delegator balances at that cycle to allow rewards distribution in proportion to shares.
+
+        Parameters:
+            address (str):  Baker address
+            cycle (int):  Rewards cycle
+
+        Keyword Parameters:
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Reward
+
+        Examples:
+            >>> address = 'tz3S6BBeKgJGXxvLyZ1xzXzMPn11nnFtq5L9'
+            >>> cycle = 10
+            >>> delegator_cycle_rewards = Reward.baker_reward_splits(address, cycle)
+        """
         path = 'v1/rewards/split/%s/%s' % (address, cycle)
         params, _ = cls.prepare_modifiers(kwargs, include=cls.pagination_parameters)
         response = cls._request(path, params=params, **kwargs)
@@ -178,6 +307,26 @@ class Reward(Base):
 
     @classmethod
     def reward_splits_delegator(cls, baker, cycle, delegator, **kwargs):
+        """
+        Returns delegator from the reward split for the specified cycle.
+
+        Parameters:
+            address (str):  Baker address
+            cycle (int):  Rewards cycle
+            delegator (str):  Delegator address
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            dict
+
+        Examples:
+            >>> address = 'tz3S6BBeKgJGXxvLyZ1xzXzMPn11nnFtq5L9'
+            >>> cycle = 10
+            >>> delegator = 'tz3gtoUxdudfBRcNY7iVdKPHCYYX6xdPpoRS'
+            >>> delegator_cycle_rewards = reward_splits_delegator(address, cycle, delegator)
+        """
         path = 'v1/rewards/split/%s/%s/%s' % (baker, cycle, delegator)
         response = cls._request(path, **kwargs)
         return response.json()

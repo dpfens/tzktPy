@@ -44,6 +44,26 @@ class BigMap(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Fetches BigMaps based on the specified criteria.
+
+        Keyword Parameters:
+            micheline (int): Format of the bigmap key and value type: 0 - JSON, 2 - Micheline.
+            contract (str):  Filters bigmaps by smart contract address.  Supports standard modifiers.
+            path (str):  Filters bigmaps by path in the contract storage.  Supports standard modifiers.
+            tags (list|tuple|set): Filters bigmaps by tags. Support set modifiers.
+            lastLevel (int):  Filters bigmaps by the last update level. Support standard modifiers.
+            sort (str):  Sorts bigmaps by specified field. Supported fields: id (default), ptr, firstLevel, lastLevel, totalKeys, activeKeys, updates.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list: BigMaps meeting the specified criteria.
+
+        Example:
+            >>> bigmaps = BigMap.get(active=True)
+        """
         path = 'v1/bigmaps'
         params = cls.get_pagination_parameters(kwargs)
         optional_base_params = ['contract', 'path', 'lastLevel', 'tags']
@@ -64,6 +84,20 @@ class BigMap(Base):
 
     @classmethod
     def by_id(cls, id, **kwargs):
+        """
+        Fetches a BigMap by the given id.
+
+        Keyword Parameters:
+            micheline (int): Format of the bigmap key and value type: 0 - JSON, 2 - Micheline.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            BigMap: BigMap with the given id.
+
+        Example:
+            >>> bigmap_id = ''
+            >>> bigmap = BigMap.by_id(bigmap_id)
+        """
         path = 'v1/bigmaps/%s' % id
         params = dict()
         micheline = kwargs.pop('micheline', None)
@@ -75,12 +109,30 @@ class BigMap(Base):
 
     @classmethod
     def by_contract(cls, address, **kwargs):
+        """
+        Returns all active bigmaps allocated in the given contract storage.
+
+        Keyword Parameters:
+            micheline (int): Format of the bigmap key and value type: 0 - JSON, 2 - Micheline.
+            tags (list|tuple|set): Filters bigmaps by tags. Support set modifiers.
+            sort (str):  Sorts bigmaps by specified field. Supported fields: id (default), ptr, firstLevel, lastLevel, totalKeys, activeKeys, updates.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list: Active BigMaps allocated to the given contract.
+
+        Example:
+            >>> contract_address = 'KT...'
+            >>> bigmaps = BigMap.by_contract(contract_address)
+        """
         path = 'v1/contracts/%s/bigmaps' % address
+        optional_base_params = ['tags'] + list(cls.pagination_parameters)
         params, parsed_params = cls.prepare_modifiers(kwargs, include=optional_base_params)
         for param in parsed_params.get('tags', []):
             params[params] = ','.join(params[param])
 
-        params.update(optional_tag_params)
         micheline = kwargs.pop('micheline', None)
         if micheline is not None:
             params['micheline'] = micheline
@@ -89,7 +141,26 @@ class BigMap(Base):
         return [cls.from_api(item) for item in data]
 
     @classmethod
-    def by_name(address, name, **kwargs):
+    def by_name(cls, address, name, **kwargs):
+        """
+        Returns contract bigmap with the specified name or storage path.
+
+        Parameters:
+            address (str):  Address of the given smart contract
+            name (str):  Bigmap name is the last piece of the bigmap storage path. For example, if the storage path is ledger or assets.ledger, then the name is ledger. If there are multiple bigmaps with the same name, for example assets.ledger and tokens.ledger, you can specify the full path.
+
+        Keyword Parameters:
+            micheline (int): Format of the bigmap key and value type: 0 - JSON, 2 - Micheline.
+
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            BigMaps:  The corresponding BigMap.
+
+        Example:
+            >>> contract_address = 'KT...'
+            >>> bigmaps = BigMap.by_name(contract_address, 'metadata')
+        """
         path = 'v1/contracts/%s/bigmaps/%s' % (address, name)
         params = dict()
         micheline = kwargs.pop('micheline', None)
@@ -118,6 +189,22 @@ class BigMapType(Base):
 
     @classmethod
     def get(cls, id, **kwargs):
+        """
+        Returns a type of the bigmap with the specified Id in Micheline format (with annotations).
+
+        Parameters:
+            id (str):  Id of a BigMap
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            BigMapType
+
+        Example:
+            >>> bigmap_id = ''
+            >>> bigmap = BigMapType.by_id(contract_address, 'metadata')
+        """
         path = 'v1/bigmaps/%s/type' % id
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -160,9 +247,33 @@ class BigMapUpdate(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of all bigmap key updates.
+
+        Keyword Parameters:
+            bigmap (int):  Filters updates by bigmap ptr. Supports standard modifiers.
+            path (str):  Filters updates by bigmap path.  Supports standard modifiers.
+            contract (str):  Filters updates by bigmap contract.  Supports standard modifiers.
+            action (str):  Filters updates by action.  Supports standard modifiers.
+            value(str):  Filters updates by JSON value. Note, this query parameter supports the following format: `?value{__path?}{__mode?}=...`, so you can specify a path to a particular field to filter by, for example: `value__balance__gt=...`.
+            level (int):  Filters updates by level.  Supports standard modifiers.
+            micheline (int): Format of the bigmap key and value type: 0 - JSON, 2 - Micheline.
+            tags (list|tuple|set): Filters bigmaps by tags. Support set modifiers.
+            sort (str):  Sorts bigmap updates by specified field. Supported fields: id (default).  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list: BigMapUpdate matching the given criteria
+
+
+        Example:
+            >>> bigmap_updates = BigMapUpdate.get(level__gt=100000)
+        """
         path = 'v1/bigmaps/updates'
-        params, param_mappings = cls.prepare_modifiers(kwargs)
         optional_base_params = ['bigmap', 'path', 'contract', 'action', 'value', 'level']
+        params, param_mappings = cls.prepare_modifiers(kwargs, include=optional_base_params)
         for param in param_mappings.get('tags', []):
             params[param] = ','.join(params[param])
 
@@ -198,15 +309,58 @@ class BigMapKey(Base):
 
     @classmethod
     def by_bigmap(cls, id, **kwargs):
+        """
+        Returns a list of bigmap keys by BigMap id.
+
+        Parameters:
+            id (int):  Bigmap Id.
+
+        Keyword Parameters:
+            active (bool): Filters keys by status.
+            key (str):  Filters keys by JSON key. Note, this query parameter supports the following format: `?key{__path?}{__mode?}=...`, so you can specify a path to a particular field to filter by, for example: `?key__token_id=...`.
+            path (str):  Filters updates by bigmap path.  Supports standard modifiers.
+            value(str):  Filters updates by JSON value. Note, this query parameter supports the following format: `?value{__path?}{__mode?}=...`, so you can specify a path to a particular field to filter by, for example: `value__balance__gt=...`.
+            lastLevel (int):  Filters bigmap keys by the last update level  Supports standard modifiers.
+            micheline (int): Format of the bigmap key and value type: 0 - JSON, 2 - Micheline.
+            sort (str):  Sorts bigmaps by specified field. Supported fields: id (default), ptr, firstLevel, lastLevel, totalKeys, activeKeys, updates.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list: BigMapKeys matching the given criteria
+
+        Example:
+            >>> bigmap_id = 123
+            >>> bigmap_keys = BigMapKey.by_bigmap(level__gt=100000)
+        """
         path = 'v1/bigmaps/%s/keys' % id
-        params, _ = cls.prepare_modifiers(kwargs)
         optional_base_params = ['key', 'value', 'lastLevel']
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         return [cls.from_api(item) for item in data]
 
     @classmethod
     def by_key(cls, id, key, **kwargs):
+        """
+        Returns a list of bigmap keys by BigMap id.
+
+        Parameters:
+            id (int):  Bigmap Id.
+            key (str):  Either a key hash (`expr123...`) or a plain value (`abcde...`). Even if the key is complex (an object or an array), you can specify it as is, for example, `/keys/{"address":"tz123","token":123}`.
+
+        Keyword Parameters:
+            micheline (int): Format of the bigmap key and value type: 0 - JSON, 2 - Micheline.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list: BigMapKeys matching the given criteria
+
+        Example:
+            >>> bigmap_id = 123
+            >>> bigmap_keys = BigMapKey.by_bigmap(level__gt=100000)
+        """
         path = 'v1/bigmaps/%s/keys/%s' % (id, key)
         params = dict()
         micheline = kwargs.pop('micheline', None)

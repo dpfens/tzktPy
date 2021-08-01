@@ -35,6 +35,28 @@ class Right(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of rights.
+
+        Keyword Parameters:
+            type (str):  Filters rights by type (baking, endorsing). Supports standard modifiers.
+            baker (str):  Filters rights by baker. Supports standard modifiers.
+            cycle (int):  Filters rights by cycle.  Supports standard modifiers.
+            level (int):  Filters rights by level.  Supports standard modifiers.
+            slots (int):  Filters rights by slots.  Supports standard modifiers.
+            priority (int):  Filters rights by priority.  Supports standard modifiers.
+            status (str):  Filters rights by status (future, realized, uncovered, missed).
+            sort (str):  Sorts rights by specified field. Supported fields: level (default). Support sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Example:
+            >>> baking_rights = Right.get(type='baking')
+        """
         optional_params = ['type', 'baker', 'cycle', 'level', 'slots', 'priority', 'status'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_params)
         path = 'v1/rights'
@@ -44,6 +66,25 @@ class Right(Base):
 
     @classmethod
     def count(cls, **kwargs):
+        """
+        Returns the total number of stored rights.
+
+        Keyword Parameters:
+            type (str):  Filters rights by type (baking, endorsing). Supports standard modifiers.
+            baker (str):  Filters rights by baker. Supports standard modifiers.
+            cycle (int):  Filters rights by cycle.  Supports standard modifiers.
+            level (int):  Filters rights by level.  Supports standard modifiers.
+            slots (int):  Filters rights by slots.  Supports standard modifiers.
+            priority (int):  Filters rights by priority.  Supports standard modifiers.
+            status (str):  Filters rights by status (future, realized, uncovered, missed).
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int
+
+        Example:
+            >>> baking_rights_count = Right.count(type='baking')
+        """
         path = 'v1/rights/count'
         optional_params = ['type', 'baker', 'cycle', 'level', 'slots', 'priority', 'status'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_params)

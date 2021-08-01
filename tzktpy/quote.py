@@ -37,6 +37,18 @@ class Quote(Base):
 
     @classmethod
     def last(cls, **kwargs):
+        """
+        Returns last known quote.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Quote
+
+        Example:
+            >>> quote = Quote.last()
+        """
         path = 'v1/quotes/last'
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -44,6 +56,23 @@ class Quote(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of quotes aligned with blocks.
+
+        Keyword Parameters:
+            level (int):  Filters quotes by level.  Supports standard modifiers.
+            timestamp (date|datetime):  Filters quotes by timestamp. Supports standard modifiers.
+            sort (str):  Sorts quotes by specified field. Supported fields: level (default).  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list:  Quotes meeting the specified criteria
+
+        Example:
+            >>> quotes = Quote.get(level__gt=150000)
+        """
         path = 'v1/quotes'
         optional_base_params = ['level', 'timestamp'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
@@ -53,6 +82,18 @@ class Quote(Base):
 
     @classmethod
     def count(cls, **kwargs):
+        """
+        Returns the total number of quotes aligned with blocks.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int
+
+        Example:
+            >>> quote_count = Quote.count()
+        """
         path = 'v1/quotes/count'
         response = cls._request(path, **kwargs)
         value = response.content

@@ -70,15 +70,52 @@ class Block(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of blocks.
+
+        Keyword Parameters:
+            baker (str):  Filters blocks by baker.  Supports standard modifiers.
+            level (int):  Filters blocks by level.  Supports standard modifiers.
+            timestamp (date|datetime): Filters blocks by timestamp.  Supports standard modifiers.
+            priority (int):  Filters blocks by priority.  Supports standard modifiers.
+            sort (str):  Sorts blocks by specified field. Supported fields: id (default), level, priority, validations, reward, fees.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list: Blocks matching the given criteria
+
+        Example:
+            >>> blocks = Block.get(level__gt=100000)
+        """
         path = 'v1/blocks'
-        optional_base_params = ['baker', 'level', 'priority', 'quote']
-        params, _ = cls.prepare_modifiers(kwargs)
+        optional_base_params = ['baker', 'level', 'timestamp', 'priority', 'quote'] + list(cls.pagination_parameters)
+        params, _ = cls.prepare_modifiers(kwargs, incude=optional_base_params)
         response = cls._request(path, params)
         data = response.json()
         return [cls.from_api(item) for item in data]
 
     @classmethod
     def by_hash(cls, hash, **kwargs):
+        """
+        Returns a block with the specified hash.
+
+        Parameters:
+            hash (str):  Block hash
+
+        Keyword Parameters:
+            operations (bool):  Flag indicating whether to include block operations into returned object or not. Default: False.
+            micheline (int):  Format of the parameters, storage and diffs: 0 - JSON, 1 - JSON string, 2 - raw micheline, 3 - raw micheline string.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Block
+
+        Example:
+            >>> block_hash = 'sfdf...'
+            >>> block = Block.by_hash(block_hash)
+        """
         path = 'v1/blocks/%s' % hash
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -86,6 +123,23 @@ class Block(Base):
 
     @classmethod
     def by_level(cls, level, **kwargs):
+        """
+        Returns a block at the specified level.
+
+        Parameters:
+            level (int):  Block level
+
+        Keyword Parameters:
+            operations (bool):  Flag indicating whether to include block operations into returned object or not. Default: False.
+            micheline (int):  Format of the parameters, storage and diffs: 0 - JSON, 1 - JSON string, 2 - raw micheline, 3 - raw micheline string.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Block
+
+        Example:
+            >>> block = Block.by_level(150000)
+        """
         path = 'v1/blocks/%s' % level
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -93,6 +147,18 @@ class Block(Base):
 
     @classmethod
     def count(cls, **kwargs):
+        """
+        Returns the total number of blocks.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int
+
+        Example:
+            >>> block_count = Block.count()
+        """
         path = 'v1/blocks/count'
         response = cls._request(path)
         value = response.content

@@ -47,6 +47,22 @@ class Proposal(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of protocol proposals.
+
+        Keyword Parameters:
+            epoch (str): Filters proposals by voting epoch.  Supports set modifiers.
+            sort (str):  Sorts proposals by specified field. Supported fields: id (default), upvotes, rolls.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Examples:
+            >>> proposals = Proposal.get(epoch=1)
+        """
         path = 'v1/voting/proposals'
         optional_base_params = ['epoch'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
@@ -56,6 +72,18 @@ class Proposal(Base):
 
     @classmethod
     def count(cls, **kwargs):
+        """
+        Returns the total number of protocol proposals.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int
+
+        Examples:
+            >>> proposal_count = Proposal.count()
+        """
         path = 'v1/voting/proposals/count'
         response = cls._request(path, **kwargs)
         data = response.content
@@ -63,6 +91,21 @@ class Proposal(Base):
 
     @classmethod
     def by_hash(cls, hash, **kwargs):
+        """
+        Returns the total number of protocol proposals.
+
+        Parameters:
+            hash (str):  Proposal hash
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Proposal
+
+        Examples:
+            >>> proposal = Proposal.by_hash('dfgdsgg...')
+        """
         path = 'v1/voting/proposals/%s' % hash
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -140,6 +183,21 @@ class VotingPeriod(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of voting periods.
+
+        Keyword Parameters:
+            sort (str):  Sorts voting periods by specified field. Supported fields: id (default).  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Examples:
+            >>> voting_periods = VotingPeriod.get()
+        """
         path = 'v1/voting/periods'
         params = cls.get_pagination_parameters(kwargs)
         response = cls._request(path, params=params, **kwargs)
@@ -148,6 +206,21 @@ class VotingPeriod(Base):
 
     @classmethod
     def by_index(cls, index, **kwargs):
+        """
+        Returns a voting period at the specified index.
+
+        Parameters:
+            index (int):  Voting period index starting from zero
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Examples:
+            >>> voting_period = VotingPeriod.by_index(10)
+        """
         path = 'v1/voting/periods/%s' % index
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -155,6 +228,18 @@ class VotingPeriod(Base):
 
     @classmethod
     def current(cls, **kwargs):
+        """
+        Returns current voting period.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            VotingPeriod
+
+        Examples:
+            >>> voting_period = VotingPeriod.current(10)
+        """
         path = 'v1/voting/periods/current'
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -208,6 +293,21 @@ class VotingEpoch(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of voting epochs
+
+        Keyword Parameters:
+            sort (str):  Sorts voting epochs by specified field. Supported fields: id (default).  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Examples:
+            >>> epochs = VotingEpoch.get()
+        """
         path = 'v1/voting/epochs'
         params = cls.get_pagination_parameters(kwargs)
         response = cls._request(path, params=params, **kwargs)
@@ -216,6 +316,21 @@ class VotingEpoch(Base):
 
     @classmethod
     def by_index(cls, index, **kwargs):
+        """
+        Returns a voting epoch at the specified index
+
+        Parameters:
+            index (int):  Voting epoch index starting from zero.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Examples:
+            >>> epoch = VotingEpoch.by_index(kind='smart_contract')
+        """
         path = 'v1/voting/epochs/%s' % index
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -223,6 +338,18 @@ class VotingEpoch(Base):
 
     @classmethod
     def current(cls, **kwargs):
+        """
+        Returns the current voting epoch
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            VotingEpoch
+
+        Examples:
+            >>> current_epoch = VotingEpoch.current(kind='smart_contract')
+        """
         path = 'v1/voting/epochs/current'
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -230,6 +357,18 @@ class VotingEpoch(Base):
 
     @classmethod
     def latest(cls, **kwargs):
+        """
+        Returns the latest epoch with at least one proposal
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            VotingEpoch
+
+        Examples:
+            >>> epoch = VotingEpoch.latest()
+        """
         path = 'v1/voting/epochs/latest_voting'
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -260,6 +399,26 @@ class PeriodVoter(Base):
 
     @classmethod
     def get(cls, index, **kwargs):
+        """
+        Returns voters from the voting period at the specified index.
+
+        Parameters:
+            index (int):  Voting period index starting from zero
+
+        Keyword Parameters:
+            status (str):  Filters voters by status (none, upvoted, voted_yay, voted_nay, voted_pass).  Supports standard modifiers.
+            sort (str):  Sorts voters by specified field. Supported fields: id (default), rolls.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Examples:
+            >>> index = 12
+            >>> yay_voters = PeriodVoter.get(index, status='voted_yay')
+        """
         path = 'v1/voting/periods/%s/voters' % index
         params = cls.get_pagination_parameters(kwargs)
         status = kwargs.pop('status', None)
@@ -271,6 +430,24 @@ class PeriodVoter(Base):
 
     @classmethod
     def by_address(cls, index, address, **kwargs):
+        """
+        Returns a voter with the specified address from the voting period at the specified index.
+
+        Parameters:
+            index (int):  Voting period index starting from zero
+            address (str):  Voter address
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            PeriodVoter
+
+        Examples:
+            >>> index = 12
+            >>> address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
+            >>> yay_voters = PeriodVoter.by_address(index, address)
+        """
         path = 'v1/voting/periods/%s/voters/%s' % (index, address)
         response = cls._request(path, **kwargs)
         data = response.json()
@@ -278,6 +455,22 @@ class PeriodVoter(Base):
 
     @classmethod
     def current(cls, **kwargs):
+        """
+        Returns voters from the current period.
+
+        Keyword Parameters:
+            status (str):  Filters voters by status (none, upvoted, voted_yay, voted_nay, voted_pass).  Supports standard modifiers.
+            sort (str):  Sorts voters by specified field. Supported fields: id (default), rolls.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            PeriodVoter
+
+        Examples:
+            >>> current_voters = PeriodVoter.current()
+        """
         path = 'v1/voting/periods/current/voters'
         params = cls.get_pagination_parameters(kwargs)
         status = kwargs.pop('status', None)
@@ -289,6 +482,22 @@ class PeriodVoter(Base):
 
     @classmethod
     def current_by_address(cls, address, **kwargs):
+        """
+        Returns voters from the current period.
+
+        Parameters:
+            address (str): Voter address
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            PeriodVoter
+
+        Examples:
+            >>> address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
+            >>> current_voters = PeriodVoter.current_by_address(address)
+        """
         path = 'v1/voting/periods/current/voters/%s' % address
         response = cls._request(path, **kwargs)
         data = response.json()

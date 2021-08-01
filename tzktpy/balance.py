@@ -52,10 +52,18 @@ class Balance(Base):
         """
         Fetches balance history of an account from {@link https://tzkt.io/ | tz_KT }.
 
+        Parameters:
+            address (str):  The address of a given account
+
+        Keyword Parameters:
+            step (int):  Step of the time series, for example if step = 1000 you will get balances at blocks 1000, 2000, 3000, ....
+            sort (str):  Sorts historical balances by specified field. Supported fields: level.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
         Returns:
             list: time series with historical balances (only changes, without duplicates).
-
-        {@link https://api.tzkt.io/#operation/Accounts_GetBalanceHistory | get balance history }.
 
         Example:
             >>> address = 'tz_1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
@@ -63,13 +71,33 @@ class Balance(Base):
             >>> balance_history = Balance.history(address, steps=steps)
         """
         path = 'v1/accounts/%s/balance_history' % address
-        response = cls._request(path)
+        optional_base_params = ['step'] + list(cls.pagination_parameters)
+        params = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        response = cls._request(path, params=params, **kwargs)
         data = response.json()
         output = [cls.from_api(item) for item in data]
         return output
 
     @classmethod
     def by_level(cls, address, level, **kwargs):
+        """
+        Fetches balance of a given account at a given level.
+
+        Parameters:
+            address (str):  The address of a given account
+            level (int): The level at which to get a balance.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int: balance of the given account at the given level.
+
+        Example:
+            >>> address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
+            >>> level = 100000
+            >>> balance = Balance.by_level(address, level)
+        """
         path = 'v1/accounts/%s/balance_history/%s' % (address, level)
         response = cls._request(path)
         data = response.content
@@ -77,6 +105,24 @@ class Balance(Base):
 
     @classmethod
     def by_date(cls, address, date, **kwargs):
+        """
+        Fetches balance of a given account at a given date.
+
+        Parameters:
+            address (str):  The address of a given account
+            date (date|datetime): The date at which to get a balance.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int: balance of the given account at the given account date.
+
+        Example:
+            >>> address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
+            >>> date = datetime.date(2020, 3, 17)
+            >>> balance = Balance.by_date(address, date)
+        """
         date_string = date.isoformat()
         path = 'v1/accounts/%s/balance_history/%s' % (address, date_string)
         response = cls._request(path)
@@ -85,6 +131,26 @@ class Balance(Base):
 
     @classmethod
     def report(cls, address, **kwargs):
+        """
+        Fetches a report on the balances of the given address.
+
+        Parameters:
+            address (str):  The address of a given account
+
+        Keyword Parameters:
+            from (date|datetime):  Start of the time range to filter by.  Supports standard modifiers.
+            to (date|datetime):  End of the time range to filter by.  Supports standard modifiers.
+            currency:  Currency to convert amounts to (btc, eur, usd, cny, jpy, krw, eth).
+            historical (bool):  Indicates if you want to use historical prices. Defaults to false.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list: A list of account balances as delimited lists.
+
+        Example:
+            >>> address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
+            >>> balance = Balance.report(address)
+        """
         delimiter_lookup = dict(comma=b',', semicolon=b';')
         delimiter = kwargs.pop('delimiter', 'comma')
         if delimiter not in delimiter_lookup:
