@@ -1,8 +1,9 @@
 from .base import Base
-__all__ = ('AccountMetadata',' AccountBase', 'Account')
+__all__ = ('AccountMetadata', 'AccountBase', 'Account')
+
 
 class AccountMetadata:
-    __slots__ = ('kind', 'alias', 'address', 'balance', 'delegate', 'creationLevel', 'creationTime')
+    __slots__ = ('kind', 'alias', 'address', 'balance', 'delegate', 'creation_level', 'creation_time')
 
     def __init__(self, kind, alias, address, balance, delegate, creation_level, creation_time):
         self.kind = kind
@@ -105,8 +106,31 @@ class Account(AccountBase):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of accounts
+
+        Keyword Parameters:
+            type (str):  Filters accounts by type (user, delegate, contract).  Supports standard modifiers.
+            kind (str):  Filters accounts by contract kind (delegator_contract or smart_contract).  Supports standard modifiers.
+            delegate (str):  Filters accounts by delegate. Supprts standard modifier.
+            balance (int):  Filters accounts by balance.  Support standard modifiers.
+            staked (bool):  Filters accounts by participation in staking.
+            lastActivity (date|datetime):  Filters accounts by last activity level (where the account was updated). Supports standard modifiers.
+            sort (str):  Sorts delegators by specified field. Supported fields: id (default), balance, firstActivity, lastActivity, numTransactions, numContracts.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list:  Accounts matching the specified criteria.
+
+        Examples:
+            Fetch number of contract Accounts:
+
+            >>> tzkt.account.Account.get(type='contract')
+        """
         path = 'v1/accounts'
-        optional_base_params = ['type', 'kind', 'delegate', 'balance', 'staked']
+        optional_base_params = ['type', 'kind', 'delegate', 'balance', 'staked'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
@@ -114,6 +138,27 @@ class Account(AccountBase):
 
     @classmethod
     def count(cls, **kwargs):
+        """
+        Fetch the number of Accounts matching the specified criteria
+
+        Parameters:
+            address (str):  The address of a given account
+
+        Keyword Parameters:
+            type (str):  Filters accounts by type (user, delegate, contract).  Supports standard modifiers.
+            kind (str):  Filters accounts by contract kind (delegator_contract or smart_contract).  Supports standard modifiers.
+            balance (int):  Filters accounts by balance.  Support standard modifiers.
+            staked (bool):  Filters accounts by participation in staking.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int: number of Accounts matching the specified criteria
+
+        Examples:
+            Fetch number of contract Accounts:
+
+            >>> tzkt.account.Account.count(type='contract')
+        """
         path = 'v1/accounts/count'
         optional_base_params = ['type', 'kind', 'balance', 'staked']
         params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
@@ -123,6 +168,23 @@ class Account(AccountBase):
 
     @classmethod
     def by_address(cls, address, **kwargs):
+        """
+        Fetch an Account by a given address
+
+        Parameters:
+            address (str):  The address of a given account
+
+        Keyword Parameters:
+            metadata (bool, optional): Indicates if metadata about the account should be returned.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Account
+
+        Examples:
+            >>> address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
+            >>> tzkt.account.Account.by_address(address)
+        """
         path = 'v1/accounts/%s' % address
         metadata = kwargs.pop('metadata', False)
         params = dict(metadata=metadata)
@@ -132,6 +194,22 @@ class Account(AccountBase):
 
     @classmethod
     def get_metadata(cls, address, **kwargs):
+        """
+        Get metadata about an account with a given address
+
+        Parameters:
+            address (str):  The address of a given account
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            dict: metadata about the given account
+
+        Examples:
+            >>> address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
+            >>> tzkt.account.Account.get_metadata(address)
+        """
         path = 'v1/accounts/%s/metadata'
         response = cls._request(path)
         data = response.json()
@@ -139,8 +217,24 @@ class Account(AccountBase):
 
     @classmethod
     def suggestions(cls, query, **kwargs):
+        """
+        Get suggestions of account based on a query
+
+        Parameters:
+            query (str):  The query used to generate suggestions
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list: account suggestions
+
+        Examples:
+            >>> query = "coin"
+            >>> tzkt.account.Account.suggestions(query)
+        """
         path = 'v1/suggest/accounts/%s' % query
-        response = cls._request(path)
+        response = cls._request(path, **kwargs)
         return response.json()
 
 

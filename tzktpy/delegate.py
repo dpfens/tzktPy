@@ -91,6 +91,23 @@ class Delegate(account.AccountBase):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of delegate accounts.
+
+        Keyword Parameters:
+            active (bool):  Delegate status to filter by (true - only active, false - only deactivated, undefined - all delegates).
+            lastActivity (date|datetime):  Filters delegates by last activity level (where the delegate was updated). Supports standard modifiers.
+            sort (str):  Sorts delegators by specified field. Supported fields: id (default), activationLevel, deactivationLevel, stakingBalance, balance, numDelegators.  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list:  Delegate accounts meeting the specified criteria
+
+        Example:
+            >>> delegates = Delegate.get(active=True)
+        """
         path = 'v1/delegates'
         optional_base_params = ['active', 'lastActivity'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
@@ -100,6 +117,19 @@ class Delegate(account.AccountBase):
 
     @classmethod
     def count(cls, **kwargs):
+        """
+        Returns a number of delegate accounts.
+
+        Keyword Parameters:
+            active (bool):  Delegate status to filter by (true - only active, false - only deactivated, undefined - all delegates).
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int
+
+        Example:
+            >>> delegate_count = Delegate.count(active=True)
+        """
         path = 'v1/delegates/count'
         params = dict()
         if 'active' in kwargs:
@@ -110,6 +140,22 @@ class Delegate(account.AccountBase):
 
     @classmethod
     def by_address(cls, address, **kwargs):
+        """
+        Returns a delegate with the specified address.
+
+        Parameters:
+            address (str):  Delegate address (starting with tz)
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Delegate
+
+        Example:
+            >>> address = 'tz...'
+            >>> delegate = Delegate.by_address(address)
+        """
         path = 'v1/delegates/%s' % address
         response = cls._request(path, **kwargs)
         data = response.json()

@@ -38,6 +38,21 @@ class Software(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of baker software.
+
+        Keyword Parameters:
+            sort (str):  Sorts delegators by specified field. Supported fields: id (default), firstLevel, lastLevel, blocksCount.  Support sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Example:
+            >>> software = Software.get()
+        """
         path = 'v1/software'
         params = cls.get_pagination_parameters(kwargs)
         response = cls._request(path, params=params, **kwargs)
@@ -46,6 +61,18 @@ class Software(Base):
 
     @classmethod
     def count(cls, **kwargs):
+        """
+        Returns a number of software.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            int
+
+        Example:
+            >>> software_count = Software.count()
+        """
         path = 'v1/software/count'
         response = cls._request(path)
         data = response.content

@@ -56,6 +56,18 @@ class Head(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns indexer head and synchronization status.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Head
+
+        Examples:
+            >>> current_head = Head.get()
+        """
         path = 'v1/head'
         response = cls._request(path, **kwargs)
         data = response.json()

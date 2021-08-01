@@ -49,6 +49,22 @@ class Cycle(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of cycles.
+
+        Keyword Parameters:
+            snapshotIndex (int):  Filters cycles by snapshot index (0..15). Supports standard modifiers.
+            sort (str):  Sorts cycles by specified field. Supported fields: index (default, desc).  Supports sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list:  Commitments meeting the specified criteria
+
+        Example:
+            >>> commitments = Commitment.get(activated=True, balance__gt=100)
+        """
         optional_base_params = ['snapshotIndex'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         path = 'v1/cycles'
@@ -58,6 +74,21 @@ class Cycle(Base):
 
     @classmethod
     def by_index(cls, index, **kwargs):
+        """
+        Returns a cycle at the specified index.
+
+        Parameters:
+            index (int):  Cycle index starting from zero
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list:  Commitments meeting the specified criteria
+
+        Example:
+            >>> commitments = Commitment.get(activated=True, balance__gt=100)
+        """
         path = 'v1/cycles/%s' % index
         quote = kwargs.pop('quote', None)
         params = dict()
@@ -69,6 +100,15 @@ class Cycle(Base):
 
     @classmethod
     def count(cls, **kwargs):
+        """
+        Returns the total number of cycles, including future cycles.
+
+        Returns:
+            int
+
+        Example:
+            >>> cycle_count = Cycle.count()
+        """
         path = 'v1/cycles/count'
         response = cls._request(path, **kwargs)
         value = response.content

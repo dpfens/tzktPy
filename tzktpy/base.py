@@ -18,6 +18,20 @@ class Base(object):
 
     @classmethod
     def tez(cls, mutez):
+        """
+        Calculates the number of tez from mutex
+
+        Parameters:
+            mutex (int|float):  The number of mutez to be converted
+
+        Returns:
+            float:  Number of tez
+
+        Examples:
+            >>> 610000
+            >>> Balance.tez(61000)
+            0.61
+        """
         multiplier = 1000000.0
         return mutez / multiplier
 
@@ -105,7 +119,8 @@ class Base(object):
                 return value
         return None
 
-    def from_api(data):
+    @classmethod
+    def from_api(cls, data):
         output = defaultdict(lambda: None)
         output.update(data)
         return output

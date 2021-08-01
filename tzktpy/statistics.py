@@ -52,6 +52,23 @@ class Statistics(Base):
 
     @classmethod
     def get(cls, **kwargs):
+        """
+        Returns a list of end-of-block statistics.
+
+        Keyword Parameters:
+            level (int):  Filters statistics by level.  Supports standard modifiers.
+            timestamp (date|datetime):  Filters statistics by timestamp.  Supports standard modifiers.
+            sort (str):  Sorts delegators by specified field. Supported fields: id (default), level, cycle, date. Support sorting modifiers.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Example:
+            >>> statistics = Statistics.get(level__gt=150000)
+        """
         path = 'v1/statistics'
         optional_base_params = ['level', 'timestamp'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
@@ -63,7 +80,23 @@ class Statistics(Base):
         return [cls.from_api(item) for item in data]
 
     @classmethod
-    def daily(cls, date, **kwargs):
+    def daily(cls, **kwargs):
+        """
+        Returns a list of end-of-day statistics.
+
+        Keyword Parameters:
+            date (date|datetime):  Filters statistics by date.  Supports standard modifiers.
+            sort (str):  Sorts delegators by specified field. Supported fields: id (default), level, cycle, date.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Example:
+            >>> daily_statistics = Statistics.daily()
+        """
         path = 'v1/statistics/daily'
         quote = kwargs.pop('quote', None)
         optional_base_params = ['date'] + list(cls.pagination_parameters)
@@ -76,6 +109,22 @@ class Statistics(Base):
 
     @classmethod
     def cyclic(cls, **kwargs):
+        """
+        Returns a list of end-of-cycle statistics.
+
+        Keyword Parameters:
+            cycle (int):  Filters statistics by cycle.  Supports standard modifiers.
+            sort (str):  Sorts delegators by specified field. Supported fields: id (default), level, cycle, date.
+            offset (int):  Specifies which or how many items should be skipped. Supports standard offset modifiers.
+            limit (int):  Maximum number of items to return.
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Example:
+            >>> daily_statistics = Statistics.cyclic()
+        """
         path = 'v1/statistics/cyclic'
         quote = kwargs.pop('quote', None)
         optional_base_params = ['cycle'] + list(cls.pagination_parameters)
@@ -88,6 +137,18 @@ class Statistics(Base):
 
     @classmethod
     def current(cls, **kwargs):
+        """
+        Returns statistics at the end of a head block.
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            Statistics
+
+        Example:
+            >>> current_statistics = Statistics.current()
+        """
         path = 'v1/statistics/current'
         params = dict()
         quote = kwargs.pop('quote', None)
