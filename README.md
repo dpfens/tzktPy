@@ -12,7 +12,6 @@ python setup.py install
 ## Scripts
 tzktPy comes with a few executable scripts for simple/common tasks:
 
-*  `tzktpy.__init__` - Fetches summary information about the network
 *  `tzktpy.account` - Fetches the balance of the given account addresses
 *  `tzktpy.balance` - Fetches the balance history of the given account
 *  `tzktpy.block` - Fetches the designated block and associated information
@@ -28,7 +27,6 @@ tzktPy comes with a few executable scripts for simple/common tasks:
 These scripts all in the following format:
 ```bash
 python -m tzktpy.head
-python -m tzktpy.__init__ <arguments>
 python -m tzktpy.account <arguments>
 python -m tzktpy.balance <arguments>
 ```
@@ -128,6 +126,9 @@ block = tzkt.block.Block.by_level(150000)
 # by levels between 100000 and 110000
 blocks = tzkt.block.Block.get(level__gt=100000, level__lt=110000, limit=10000)
 ```
+
+## Beta module
+The beta module is for API endpoints that may not be permanent fixtures of the tzktpy library.  Endpoints in the beta module may be renamed or removed from the beta module at any time, or may stop working.  Endpoints that become stable will be moved to another module in tzktpy.
 
 ## Contributions
 Contributions are welcome.  Feel free to submit issues and pull requests.

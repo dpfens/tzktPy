@@ -225,6 +225,7 @@ class Endorsement(OperationBase):
     def __init__(self, type, id, level, timestamp, block, hash, delegate, slots, deposit, rewards, quote):
         super(Endorsement, self).__init__(type, id, level, timestamp, block)
         self.hash = hash
+        self.delegate = delegate
         self.slots = slots
         self.deposit = deposit
         self.rewards = rewards
@@ -247,11 +248,12 @@ class Endorsement(OperationBase):
             timestamp = cls.to_datetime(timestamp)
         block = data['block']
         hash = data['hash']
+        delegate = data['delegate']
         slots = data['slots']
         deposit = data['deposit']
         rewards = data['rewards']
         quote = data['quote']
-        return cls(type, id, level, timestamp, block, hash, slots, deposit, rewards, quote)
+        return cls(type, id, level, timestamp, block, hash, delegate, slots, deposit, rewards, quote)
 
     @classmethod
     def get(cls, **kwargs):
@@ -985,6 +987,8 @@ class Delegation(OperationBase):
         self.nonce = nonce
         self.gas_limit = gas_limit
         self.gas_used = gas_used
+        self.storage_limit = storage_limit
+        self.storage_used = storage_used
         self.baker_fee = baker_fee
         self.amount = amount
         self.prev_delegate = prev_delegate
@@ -1013,6 +1017,8 @@ class Delegation(OperationBase):
         nonce = data['nonce']
         gas_limit = data['gasLimit']
         gas_used = data['gasUsed']
+        storage_limit = data['storageLimit']
+        storage_used = data['storageUsed']
         baker_fee = data['bakerFee']
         amount = data['amount']
         prev_delegate = data['prevDelegate']
@@ -1110,6 +1116,8 @@ class Origination(OperationBase):
         self.nonce = nonce
         self.gas_limit = gas_limit
         self.gas_used = gas_used
+        self.storage_limit = storage_limit
+        self.storage_used = storage_used
         self.baker_fee = baker_fee
         self.storage_fee = storage_fee
         self.allocation_fee = allocation_fee
@@ -1144,6 +1152,8 @@ class Origination(OperationBase):
         nonce = data['nonce']
         gas_limit = data['gasLimit']
         gas_used = data['gasUsed']
+        storage_limit = data['storageLimit']
+        storage_used = data['storageUsed']
         baker_fee = data['bakerFee']
         storage_fee = data['storageFee']
         allocation_fee = data['allocationFee']
@@ -1239,11 +1249,13 @@ class Origination(OperationBase):
 
 
 class Transaction(OperationBase):
-    __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'sender', 'target', 'quote', 'nonce', 'gas_limit', 'gas_used', 'storage_limit', 'storage_used', 'baker_fee', 'storage_fee', 'allocation_fee', 'amount', 'parameter', 'storage', 'diffs', 'status', 'has_internals')
+    __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'counter', 'initiator', 'sender', 'target', 'quote', 'nonce', 'gas_limit', 'gas_used', 'storage_limit', 'storage_used', 'baker_fee', 'storage_fee', 'allocation_fee', 'amount', 'parameter', 'storage', 'diffs', 'status', 'has_internals')
 
-    def __init__(self, type, id, level, timestamp, block, hash, sender, target, quote, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, storage_fee, allocation_fee, amount, parameter, storage, diffs, status, has_internals):
+    def __init__(self, type, id, level, timestamp, block, hash, counter, initiator, sender, target, quote, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, storage_fee, allocation_fee, amount, parameter, storage, diffs, status, has_internals):
         super(Transaction, self).__init__(type, id, level, timestamp, block)
         self.hash = hash
+        self.counter = counter
+        self.initiator = initiator
         self.sender = sender
         self.target = target
         self.quote = quote
@@ -1276,6 +1288,8 @@ class Transaction(OperationBase):
             timestamp = cls.to_datetime(timestamp)
         block = data['block']
         hash = data['hash']
+        counter = data['counter']
+        initiator = data['initiator']
         sender = data['sender']
         target = data['target']
         quote = data['quote']
@@ -1293,7 +1307,7 @@ class Transaction(OperationBase):
         diffs = data['diffs']
         status = data['status']
         has_internals = data['hasInternals']
-        return cls(type, id, level, timestamp, block, hash, sender, target, quote, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, storage_fee, allocation_fee, amount, parameter, storage, diffs, status, has_internals)
+        return cls(type, id, level, timestamp, block, hash, counter, initiator, sender, target, quote, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, storage_fee, allocation_fee, amount, parameter, storage, diffs, status, has_internals)
 
     @classmethod
     def get(cls, **kwargs):

@@ -3,9 +3,9 @@ __all__ = ('Block', )
 
 
 class Block(Base):
-    __slots__ = ('level', 'hash', 'timestamp', 'proto', 'priority', 'validations', 'deposit', 'reward', 'fees', 'nonceRevealed', 'baker', 'software', 'endorsements', 'proposals', 'ballots', 'activations', 'doubleBaking', 'doubleEndorsing', 'nonceRevelations', 'delegations', 'originations', 'transactions', 'reveals', 'quote')
+    __slots__ = ('level', 'hash', 'timestamp', 'proto', 'priority', 'validations', 'deposit', 'reward', 'fees', 'nonce_revealed', 'baker', 'software', 'endorsements', 'proposals', 'ballots', 'activations', 'doubleBaking', 'doubleEndorsing', 'nonceRevelations', 'delegations', 'originations', 'transactions', 'reveals', 'quote')
 
-    def __init__(self, level, hash, timestamp, proto, priority, validations, deposit, reward, fees, nonceRevealed, baker, software, endorsements, proposals, ballots, activations, doubleBaking, doubleEndorsing, nonceRevelations, delegations, originations, transactions, reveals, quote):
+    def __init__(self, level, hash, timestamp, proto, priority, validations, deposit, reward, fees, nonce_revealed, baker, software, endorsements, proposals, ballots, activations, doubleBaking, doubleEndorsing, nonceRevelations, delegations, originations, transactions, reveals, quote):
         self.level = level
         self.hash = hash
         self.timestamp = timestamp
@@ -15,7 +15,7 @@ class Block(Base):
         self.deposit = deposit
         self.reward = reward
         self.fees = fees
-        self.nonceRevealed = nonceRevealed
+        self.nonce_revealed = nonce_revealed
         self.baker = baker
         self.software = software
         self.endorsements = endorsements
@@ -92,7 +92,7 @@ class Block(Base):
         path = 'v1/blocks'
         optional_base_params = ['baker', 'level', 'timestamp', 'priority', 'quote'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, incude=optional_base_params)
-        response = cls._request(path, params)
+        response = cls._request(path, params=params)
         data = response.json()
         return [cls.from_api(item) for item in data]
 
