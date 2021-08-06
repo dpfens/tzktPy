@@ -16,13 +16,13 @@ class BalanceShort(object):
 
     @classmethod
     def from_api(cls, data):
-        btc = data['btc']
-        usd = data['usd']
-        eth = data['eth']
-        eur = data['eur']
-        cny = data['cny']
-        jpy = data['jpy']
-        krw = data['krw']
+        btc = data.get('btc')
+        usd = data.get('usd')
+        eth = data.get('eth')
+        eur = data.get('eur')
+        cny = data.get('cny')
+        jpy = data.get('jpy')
+        krw = data.get('krw')
         return cls(btc, usd, eth, eur, cny, jpy, krw)
 
 
@@ -38,10 +38,10 @@ class Balance(Base):
     @classmethod
     def from_api(cls, data):
         balance = data['balance']
-        if balance:
-            balance = BalanceShort.from_api(balance)
         level = data['level']
-        quote = data['quote']
+        quote = data.get('quote')
+        if quote:
+            quote = BalanceShort.from_api(quote)
         timestamp = data['timestamp']
         if timestamp:
             timestamp = cls.to_datetime(timestamp)
@@ -71,8 +71,11 @@ class Balance(Base):
             >>> balance_history = Balance.history(address, steps=steps)
         """
         path = 'v1/accounts/%s/balance_history' % address
+        quote = kwargs.pop('quote', '')
         optional_base_params = ['step'] + list(cls.pagination_parameters)
-        params = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
+        if quote:
+            params['quote'] = ','.join(quote)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
         output = [cls.from_api(item) for item in data]

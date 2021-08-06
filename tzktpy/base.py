@@ -121,7 +121,6 @@ class Base(object):
 
     @classmethod
     def from_api(cls, data):
-        print(data)
         output = defaultdict(lambda: None)
         output.update(data)
         return output

@@ -3,29 +3,67 @@ __all__ = ('AccountMetadata', 'AccountBase', 'Account')
 
 
 class AccountMetadata:
-    __slots__ = ('kind', 'alias', 'address', 'balance', 'delegate', 'creation_level', 'creation_time')
+    __slots__ = ('kind', 'alias', 'description', 'site', 'support', 'email', 'twitter', 'telegram', 'discord', 'reddit', 'slack', 'github', 'gitlab', 'instagram', 'facebook', 'medium')
 
-    def __init__(self, kind, alias, address, balance, delegate, creation_level, creation_time):
+    def __init__(self, kind, alias, description, site, support, email, twitter, telegram, discord, reddit, slack, github, gitlab, instagram, facebook, medium):
         self.kind = kind
         self.alias = alias
-        self.address = address
-        self.balance = balance
-        self.delegate = delegate
-        self.creation_level = creation_level
-        self.creation_time = creation_time
+        self.description = description
+        self.site = site
+        self.support = support
+        self.email = email
+        self.twitter = twitter
+        self.telegram = telegram
+        self.discord = discord
+        self.reddit = reddit
+        self.slack = slack
+        self.github = github
+        self.gitlab = gitlab
+        self.instagram = instagram
+        self.facebook = facebook
+        self.medium = medium
 
     @classmethod
     def from_api(cls, data):
         kind = data['kind']
         alias = data['alias']
-        address = data['address']
-        balance = data['balance']
-        delegate = data['delegate']
-        creation_level = data['creationLevel']
-        creation_time = data['creationTime']
-        if creation_time:
-            creation_time = cls.to_datetime(creation_time)
-        return cls(kind, alias, address, balance, delegate, creation_level, creation_time)
+        description = data['description']
+        site = data['site']
+        support = data['support']
+        email = data['email']
+        twitter = data['twitter']
+        telegram = data['telegram']
+        discord = data['discord']
+        reddit = data['reddit']
+        slack = data['slack']
+        github = data['github']
+        gitlab = data['gitlab']
+        instagram = data['instagram']
+        facebook = data['facebook']
+        medium = data['medium']
+        return cls(kind, alias, description, site, support, email, twitter, telegram, discord, reddit, slack, github, gitlab, instagram, facebook, medium)
+
+    @classmethod
+    def by_address(cls address, **kwargs):
+        """
+        Returns the metadata for an account by address
+
+        Keyword Parameters:
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            AccountMetadata
+
+        Examples:
+            Fetch metadata for an account:
+
+            >>> address = 'tz1irJKkXS2DBWkU1NnmFQx1c1L7pbGg4yhk'
+            >>> tzkt.account.AccountMetadata.by_address(address)
+        """
+        path = 'v1/accounts/%s/metadata'
+        response = cls._request(path, params=params, **kwargs)
+        data = response.json()
+        return cls.from_api(data)
 
 
 class AccountBase(Base):
@@ -130,7 +168,7 @@ class Account(AccountBase):
             >>> tzkt.account.Account.get(type='contract')
         """
         path = 'v1/accounts'
-        optional_base_params = ['type', 'kind', 'delegate', 'balance', 'staked'] + list(cls.pagination_parameters)
+        optional_base_params = ['type', 'kind', 'delegate', 'balance', 'staked', 'lastActivity'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
