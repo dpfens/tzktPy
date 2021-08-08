@@ -2,7 +2,7 @@ from .base import Base
 __all__ = ('AccountMetadata', 'AccountBase', 'Account')
 
 
-class AccountMetadata:
+class AccountMetadata(Base):
     __slots__ = ('kind', 'alias', 'description', 'site', 'support', 'email', 'twitter', 'telegram', 'discord', 'reddit', 'slack', 'github', 'gitlab', 'instagram', 'facebook', 'medium')
 
     def __init__(self, kind, alias, description, site, support, email, twitter, telegram, discord, reddit, slack, github, gitlab, instagram, facebook, medium):
@@ -23,28 +23,34 @@ class AccountMetadata:
         self.facebook = facebook
         self.medium = medium
 
+    def __str__(self):
+        return self.alias
+
+    def __repr__(self):
+        return '<%s %s alias=%r, site=%r, support=%s, email=%r>' % (self.__class__.__name__, id(self), self.alias, self.site, self.support, self.email)
+
     @classmethod
     def from_api(cls, data):
         kind = data['kind']
-        alias = data['alias']
-        description = data['description']
-        site = data['site']
-        support = data['support']
-        email = data['email']
-        twitter = data['twitter']
-        telegram = data['telegram']
-        discord = data['discord']
-        reddit = data['reddit']
-        slack = data['slack']
-        github = data['github']
-        gitlab = data['gitlab']
-        instagram = data['instagram']
-        facebook = data['facebook']
-        medium = data['medium']
+        alias = data.get('alias')
+        description = data.get('description')
+        site = data.get('site')
+        support = data.get('support')
+        email = data.get('email')
+        twitter = data.get('twitter')
+        telegram = data.get('telegram')
+        discord = data.get('discord')
+        reddit = data.get('reddit')
+        slack = data.get('slack')
+        github = data.get('github')
+        gitlab = data.get('gitlab')
+        instagram = data.get('instagram')
+        facebook = data.get('facebook')
+        medium = data.get('medium')
         return cls(kind, alias, description, site, support, email, twitter, telegram, discord, reddit, slack, github, gitlab, instagram, facebook, medium)
 
     @classmethod
-    def by_address(cls address, **kwargs):
+    def by_address(cls, address, **kwargs):
         """
         Returns the metadata for an account by address
 
@@ -60,8 +66,10 @@ class AccountMetadata:
             >>> address = 'tz1irJKkXS2DBWkU1NnmFQx1c1L7pbGg4yhk'
             >>> tzkt.account.AccountMetadata.by_address(address)
         """
-        path = 'v1/accounts/%s/metadata'
-        response = cls._request(path, params=params, **kwargs)
+        path = 'v1/accounts/%s/metadata' % address
+        response = cls._request(path, **kwargs)
+        if not response.content:
+            return None
         data = response.json()
         return cls.from_api(data)
 
