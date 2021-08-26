@@ -106,10 +106,48 @@ class OperationBase(Base):
 
         Examples:
             >>> hash = 'op6hnMitxyMmdoULXeKq6En2KfC1VDWg9nLwoahTqVhgqNimDLi'
-            >>> counter = 2
+            >>> counter = 11439251
             >>> operations = Operation.by_hash_counter(hash, counter)
         """
         path = 'v1/operations/%s/%s' % (hash, counter)
+
+        params = dict()
+        micheline = kwargs.pop('micheline', None)
+        if micheline:
+            params['micheline'] = micheline
+
+        quote = kwargs.pop('quote', None)
+        if quote:
+            params['quote'] = quote
+        response = cls._request(path, params=params, **kwargs)
+        data = response.json()
+        output = [cls.from_api(item) for item in data]
+        return output
+
+    @classmethod
+    def by_hash_counter_nonce(cls, hash, counter, nonce, **kwargs):
+        """
+        Returns a list of operations with the specified hash and counter.
+
+        Parameters:
+            hash (str):  Operation hash
+            counter (int): Operation counter
+            nonce (int):  Operation nonce
+
+        Keyword Parameters:
+            micheline (int):  Format of the parameters, storage and diffs: 0 - JSON, 1 - JSON string, 2 - raw micheline, 3 - raw micheline string
+            domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
+
+        Returns:
+            list
+
+        Examples:
+            >>> hash = 'op6hnMitxyMmdoULXeKq6En2KfC1VDWg9nLwoahTqVhgqNimDLi'
+            >>> counter = 11439251
+            >>> nonce = 0
+            >>> operations = Operation.by_hash_counter_nonce(hash, counter, nonce)
+        """
+        path = 'v1/operations/%s/%s/%s' % (hash, counter, nonce)
 
         params = dict()
         micheline = kwargs.pop('micheline', None)
@@ -174,7 +212,7 @@ class OperationBase(Base):
         return output
 
     @classmethod
-    def _type_by_hash(cls, type, **kwargs):
+    def _type_by_hash(cls, type, hash, **kwargs):
         path = 'v1/operations/%s/%s' % (type, hash)
         params = dict()
         quote = kwargs.pop('quote', None)
@@ -1249,9 +1287,9 @@ class Origination(OperationBase):
 
 
 class Transaction(OperationBase):
-    __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'counter', 'initiator', 'sender', 'target', 'quote', 'nonce', 'gas_limit', 'gas_used', 'storage_limit', 'storage_used', 'baker_fee', 'storage_fee', 'allocation_fee', 'amount', 'parameter', 'storage', 'diffs', 'status', 'has_internals')
+    __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'counter', 'initiator', 'sender', 'target', 'quote', 'nonce', 'gas_limit', 'gas_used', 'storage_limit', 'storage_used', 'baker_fee', 'storage_fee', 'allocation_fee', 'amount', 'parameter', 'parameters', 'storage', 'diffs', 'status', 'has_internals')
 
-    def __init__(self, type, id, level, timestamp, block, hash, counter, initiator, sender, target, quote, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, storage_fee, allocation_fee, amount, parameter, storage, diffs, status, has_internals):
+    def __init__(self, type, id, level, timestamp, block, hash, counter, initiator, sender, target, quote, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, storage_fee, allocation_fee, amount, parameter, parameters, storage, diffs, status, has_internals):
         super(Transaction, self).__init__(type, id, level, timestamp, block)
         self.hash = hash
         self.counter = counter
@@ -1269,6 +1307,7 @@ class Transaction(OperationBase):
         self.allocation_fee = allocation_fee
         self.amount = amount
         self.parameter = parameter
+        self.parameters = parameters
         self.storage = storage
         self.diffs = diffs
         self.status = status
@@ -1303,11 +1342,12 @@ class Transaction(OperationBase):
         allocation_fee = data['allocationFee']
         amount = data['amount']
         parameter = data['parameter']
+        parameters = data.get('parameters')
         storage = data['storage']
         diffs = data['diffs']
         status = data['status']
         has_internals = data['hasInternals']
-        return cls(type, id, level, timestamp, block, hash, counter, initiator, sender, target, quote, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, storage_fee, allocation_fee, amount, parameter, storage, diffs, status, has_internals)
+        return cls(type, id, level, timestamp, block, hash, counter, initiator, sender, target, quote, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, storage_fee, allocation_fee, amount, parameter, parameters, storage, diffs, status, has_internals)
 
     @classmethod
     def get(cls, **kwargs):
