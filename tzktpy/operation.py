@@ -42,7 +42,14 @@ __all__ = ('Operation', 'Endorsement', 'Ballot', 'Proposal', 'Activation', 'Doub
 
 
 class OperationBase(Base):
-
+    """
+    Attributes:
+        type (str):  The type of operation
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed
+        timestamp (datetime):  The time at which the operation was executed
+        block (str):  The hash representing the block that stores the operation
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block')
 
     def __init__(self, type, id, level, timestamp, block):
@@ -75,7 +82,7 @@ class OperationBase(Base):
 
         Examples:
             >>> hash = 'op6hnMitxyMmdoULXeKq6En2KfC1VDWg9nLwoahTqVhgqNimDLi'
-            >>> operations = Operation.by_hash(hash)
+            >>> operations_group = Operation.by_hash(hash)
         """
         path = 'v1/operations/%s' % hash
         params = dict()
@@ -235,6 +242,15 @@ class OperationBase(Base):
 
 
 class Operation(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash')
 
     def __init__(self, type, id, level, timestamp, block, hash):
@@ -258,6 +274,18 @@ class Operation(OperationBase):
 
 
 class Endorsement(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+        deposit (int):  The number of microtez deposited for the endorsement.
+        rewards (int):  The number of microtez rewarded for the endorsement
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'delegate', 'slots', 'deposit', 'rewards', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, hash, delegate, slots, deposit, rewards, quote):
@@ -336,7 +364,7 @@ class Endorsement(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Endorsement
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -365,6 +393,20 @@ class Endorsement(OperationBase):
 
 
 class Ballot(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+        period (int):  The period during which the ballot was cast.
+        delegate (str):  The address of the delegate
+        rolls (int):  The number of rolls
+        vote (str):  The vote of the operation
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'period', 'proposal', 'delegate', 'rolls', 'vote', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, hash, period, proposal, delegate, rolls, vote, quote):
@@ -445,7 +487,7 @@ class Ballot(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Ballot
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -474,6 +516,20 @@ class Ballot(OperationBase):
 
 
 class Proposal(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+        period (int):  The period during which the ballot was cast.
+        delegate (str):  The address of the delegate
+        rolls (int):  The number of rolls
+        duplicated (bool):  Indicates if the proposal is duplicated
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'period', 'proposal', 'delegate', 'rolls','duplicated', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, hash, period, proposal, delegate, rolls,duplicated, quote):
@@ -555,7 +611,7 @@ class Proposal(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Proposal
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -584,6 +640,18 @@ class Proposal(OperationBase):
 
 
 class Activation(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+        account (str):  The address of the activated account
+        balance (int):  The balance of the account (denominated in microtez)
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'account', 'balance', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, hash, account, balance, quote):
@@ -655,7 +723,7 @@ class Activation(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Proposal
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -684,6 +752,23 @@ class Activation(OperationBase):
 
 
 class DoubleBaking(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+        accused_level (int):  The level at which the accuser accused the offender.
+        accuser (str):  The address of the accusing account
+        accuser_rewards (int):  The rewards of the accusation given to the accuser (denominated in microtez).
+        offender (str):  The address of the account that double baked.
+        offender_lost_deposits (int):  The deposit lost by the offending account double baking (denominated in microtez).
+        offender_lost_rewards (int):  The reward lost by the offending account double baking (denominated in microtez).
+        offender_lost_fees (int):  The fees lost by the offending account double baking (denominated in microtez).
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'accused_level', 'accuser', 'accuser_rewards', 'offender', 'offender_lost_deposits', 'offender_lost_rewards', 'offender_lost_fees', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, hash, accused_level, accuser, accuser_rewards, offender, offender_lost_deposits, offender_lost_rewards, offender_lost_fees, quote):
@@ -767,7 +852,7 @@ class DoubleBaking(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            DoubleBaking
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -796,6 +881,23 @@ class DoubleBaking(OperationBase):
 
 
 class DoubleEndorsing(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+        accused_level (int):  The level at which the accuser accused the offender.
+        accuser (str):  The address of the accusing account
+        accuser_rewards (int):  The rewards of the accusation given to the accuser (denominated in microtez).
+        offender (str):  The address of the account that double endorsed.
+        offender_lost_deposits (int):  The deposit lost by the offending account double endorsing (denominated in microtez).
+        offender_lost_rewards (int):  The reward lost by the offending account double endorsing (denominated in microtez).
+        offender_lost_fees (int):  The fees lost by the offending account double endorsing (denominated in microtez).
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'accused_level', 'accuser', 'accuser_rewards', 'offender', 'offender_lost_deposits', 'offender_lost_rewards', 'offender_lost_fees', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, hash, accused_level, accuser, accuser_rewards, offender, offender_lost_deposits, offender_lost_rewards, offender_lost_fees, quote):
@@ -879,7 +981,7 @@ class DoubleEndorsing(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            DoubleEndorsing
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -985,7 +1087,7 @@ class NonceRevelation(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            NonceRevelation
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -1014,6 +1116,28 @@ class NonceRevelation(OperationBase):
 
 
 class Delegation(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+        counter (int):  The counter used to ensure the operation is not executed multiple times by the network.
+        initiator (str):  The address of the account that initiated the delegation operation.
+        sender (str):  The account address that is delegating tokens to the new_delegate.
+        nonce (int):
+        gas_limit (int):  The maximum microtez to be spent to execute the operation.
+        gas_used (int):  The microtez spent to execute the operation.
+        storage_limit (int):  The maximum amount of storage to be used by the operation.
+        storage_used (int):  The amount of storage used by the operation.
+        baker_fee (int):  The microtez sent to the baker for executing the operation.
+        amount (int):  The microtez delegated to the new_delegate
+        prev_delegate (str):  The account address the sender previously delegated to.
+        new_delegate (str):  The account address the sender is delegating the amount to.
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'counter', 'initiator', 'sender', 'nonce', 'gas_limit', 'gas_used', 'storage_limit', 'storage_used', 'baker_fee', 'amount', 'prev_delegate', 'new_delegate', 'status', 'errors', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, hash, counter, initiator, sender, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, amount, prev_delegate, new_delegate, status, errors, quote):
@@ -1114,7 +1238,7 @@ class Delegation(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Delegation
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -1258,7 +1382,7 @@ class Origination(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Origination
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -1287,6 +1411,33 @@ class Origination(OperationBase):
 
 
 class Transaction(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+        counter (int):  The counter used to ensure the operation is not executed multiple times by the network.
+        initiator (str):  The address of the account that initiated the delegation operation.
+        sender (str):  The account address that is sending tokens.
+        target (str):  The account address that is receiving tokens.
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+        nonce (int):
+        gas_limit (int):  The maximum microtez to be spent to execute the operation.
+        gas_used (int):  The microtez spent to execute the operation.
+        storage_limit (int):  The maximum amount of storage to be used by the operation.
+        storage_used (int):  The amount of storage used by the operation.
+        baker_fee (int):  The microtez sent to the baker for executing the operation.
+        amount (int):  The microtez sent from the sender to the target.
+        parameter (object):  Parameter passed into the smart contract.
+        parameters (object):  Parameters passed into the smart contract.
+        storage (object):  Storage data about the operation.
+        diffs (object):  The changes made to storage.
+        status (str):  current status of the operation.
+        has_internals (bool):  Indicates if the operation is internal or not.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'counter', 'initiator', 'sender', 'target', 'quote', 'nonce', 'gas_limit', 'gas_used', 'storage_limit', 'storage_used', 'baker_fee', 'storage_fee', 'allocation_fee', 'amount', 'parameter', 'parameters', 'storage', 'diffs', 'status', 'has_internals')
 
     def __init__(self, type, id, level, timestamp, block, hash, counter, initiator, sender, target, quote, nonce, gas_limit, gas_used, storage_limit, storage_used, baker_fee, storage_fee, allocation_fee, amount, parameter, parameters, storage, diffs, status, has_internals):
@@ -1399,7 +1550,7 @@ class Transaction(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Transaction
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -1429,6 +1580,23 @@ class Transaction(OperationBase):
 
 
 class Reveal(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        hash (str):  The hash representing the operations group containing the operation.
+        sender (str):  The account address that is being revealed.
+        counter (int):  The counter used to ensure the operation is not executed multiple times by the network.
+        gas_limit (int):  The maximum microtez to be spent to execute the operation.
+        gas_used (int):  The microtez spent to execute the operation.
+        baker_fee (int):  The microtez sent to the baker for executing the operation.
+        status (str):  current status of the operation.
+        errors (str):  Errors that occur during the operation.
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'hash', 'sender', 'counter', 'gas_limit', 'gas_used', 'baker_fee', 'status', 'errors', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, hash, sender, counter, gas_limit, gas_used, baker_fee, status, errors, quote):
@@ -1511,7 +1679,7 @@ class Reveal(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Reveal
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -1540,6 +1708,18 @@ class Reveal(OperationBase):
 
 
 class Migration(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        kind (str):  The kind of migration of the operation.
+        account (str):  The address of the account being migrated.
+        balance_change (int):  The balance change of the account (denominated in microtez).
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'kind', 'account', 'balance_change', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, kind, account, balance_change, quote):
@@ -1614,7 +1794,7 @@ class Migration(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Migration
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -1717,7 +1897,7 @@ class RevelationPenalty(OperationBase):
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            RevelationPenalty
+            list
 
         Examples:
             >>> hash = 'dadfa...'
@@ -1746,6 +1926,19 @@ class RevelationPenalty(OperationBase):
 
 
 class Baking(OperationBase):
+    """
+    Attributes:
+        type (str):  The type of operation.
+        id (str):  The unique identifier of the operation.
+        level (int):  The level at which the operation was executed.
+        timestamp (datetime):  The time at which the operation was executed.
+        block (str):  The hash representing the block that stores the operation.
+        baker (str):  The account address performing the baking.
+        priority (int):  The priority of the baking operation.
+        reward (int):  The reward for baking the block.  Denominated in microtez.
+        fees (int):  The fees for baking the block.  Denominated in microtez.
+        quote (float):  The value of 1.0 tez denominated in the chosen currency.
+    """
     __slots__ = ('type', 'id', 'level', 'timestamp', 'block', 'baker', 'priority', 'deposit', 'reward', 'fees', 'quote')
 
     def __init__(self, type, id, level, timestamp, block, baker, priority, deposit, reward, fees, quote):
@@ -1814,14 +2007,14 @@ class Baking(OperationBase):
         Returns a baking operation with specified hash.
 
         Parameters:
-            hash (str):  Operation hash
+            hash (str):  Operation group hash
 
         Keyword Parameters:
             quote (list|tuple|set):  list of ticker symbols to inject historical prices into response
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
         Returns:
-            Baking
+            list
 
         Examples:
             >>> hash = 'dadfa...'

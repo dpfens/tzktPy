@@ -35,10 +35,10 @@ To get a description on how to use the script, use the `--help` argument to get 
 
 ## Quickstart
 
-## Filtering search criteria using modifiers
+### Filtering search criteria using modifiers
 The tzKT API offers flexible queries to filter objects and filter the number of objects that match a specified criteria.  These criteria use modifiers to specify the type of comparison that should be performed.  These modifiers include the following:
 
-### Standard modifiers
+#### Standard modifiers
 *  `eq` = equal to
 *  `ne` = not equal to
 *  `gt` = greater than
@@ -54,7 +54,7 @@ import tzktpy as tzkt
 tzkt.account.Account.get(balance__ge=1000, balance__lt=100000)
 ```
 
-### Pagination modifiers
+#### Pagination modifiers
 *  `offset`
    *  `el` = elements offset.  Skip specified number of elements
    *  `pg` = page offset. Skip `page * limit` elements.
@@ -87,7 +87,7 @@ while page:
 
 Both are valid approaches to pagination using `tzktpy`.  Modifiers are only supported by API endpoints that return multiple objects (`get` methods), and objects that return the total number of a given object (`count` methods).
 
-### Fetching an Account By Address
+#### Fetching an Account By Address
 ```python
 import tzktpy as tzkt
 
@@ -95,17 +95,17 @@ address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
 account = tzkt.account.Account.by_address(address)
 ```
 
-### Fetching Accounts by Criteria
+#### Fetching Accounts by Criteria
 ```python
 import tzktpy as tzkt
 # fetch only contract accounts with a balance < 100000
 tzkt.account.Account.get(type='contract', balance__lt=100000)
 ```
 
-### Fetching Operations
+#### Fetching Operations
 Tzkt supports fetching details on operations performed.
 
-#### Fetch all Operations performed on an account
+##### Fetch all Operations performed on an account
 ```python
 import tzktpy as tzkt
 address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
@@ -117,7 +117,7 @@ while page:
     page_number += 1
 ```
 
-### Fetching Blocks
+#### Fetching Blocks
 ```python
 # by level
 import tzktpy as tzkt
