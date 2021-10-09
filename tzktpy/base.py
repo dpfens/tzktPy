@@ -124,3 +124,35 @@ class Base(object):
         output = defaultdict(lambda: None)
         output.update(data)
         return output
+
+
+class Period(Base):
+    __slots__ = ('id', 'index', 'epoch', 'kind', 'first_level', 'last_level', 'start_level', 'end_level')
+
+    def __init__(self, id, index, epoch, kind, first_level, last_level, start_level, end_level):
+        self.id = id
+        self.index = index
+        self.epoch = epoch
+        self.kind = kind
+        self.first_level = first_level
+        self.last_level = last_level
+        self.start_level = start_level
+        self.last_level = last_level
+
+    def __str__(self):
+        return str(self.id)
+
+    def __repr__(self):
+        return '<%s %s id=%r, index=%r, epoch=%r, kind=%r, start_level=%r, end_level=%r>' % (self.__class__.__name__, id(self), self.id, self.index, self.epoch, self.kind, self.start_level, self.end_level)
+
+    @classmethod
+    def from_api(cls, data):
+        id = data['id']
+        index = data['index']
+        epoch = data['epoch']
+        kind = data['kind']
+        first_level = data['firstLevel']
+        last_level = data['lastLevel']
+        start_level = data['startLevel']
+        end_level = data['endLevel']
+        return cls(id, index, epoch, kind, first_level, last_level, start_level, end_level)

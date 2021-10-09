@@ -37,7 +37,7 @@ Baking
     Bakers validating new blocks on the Tezos blockchain.
 """
 
-from .base import Base
+from .base import Base, Period
 __all__ = ('Operation', 'Endorsement', 'Ballot', 'Proposal', 'Activation', 'DoubleBaking', 'DoubleEndorsing', 'NonceRevelation', 'Delegation', 'Origination', 'Transaction', 'Reveal', 'Migration', 'RevelationPenalty', 'Baking')
 
 
@@ -433,7 +433,10 @@ class Ballot(OperationBase):
             timestamp = cls.to_datetime(timestamp)
         block = data['block']
         hash = data['hash']
-        period = data['period']
+        raw_period = data['period']
+        period = None
+        if raw_period:
+            period = Period.from_api(raw_period)
         proposal = data['proposal']
         delegate = data['delegate']
         rolls = data['rolls']
@@ -556,7 +559,12 @@ class Proposal(OperationBase):
             timestamp = cls.to_datetime(timestamp)
         block = data['block']
         hash = data['hash']
-        period = data['period']
+
+        raw_period = data['period']
+        period = None
+        if raw_period:
+            period = Period.from_api(raw_period)
+
         proposal = data['proposal']
         delegate = data['delegate']
         rolls = data['rolls']

@@ -3,9 +3,9 @@ __all__ = ('Proposal', 'VotingEpoch', 'VotingPeriod', 'PeriodVoter')
 
 
 class Proposal(Base):
-    __slots__ = ('hash', 'initiator', 'first_period', 'last_period', 'epoch', 'upvotes', 'rolls',  'status', 'metadata')
+    __slots__ = ('hash', 'initiator', 'first_period', 'last_period', 'epoch', 'upvotes', 'rolls', 'status', 'metadata')
 
-    def __init__(self, hash, initiator, first_period, last_period, epoch, upvotes, rolls,  status, metadata):
+    def __init__(self, hash, initiator, first_period, last_period, epoch, upvotes, rolls, status, metadata):
         self.hash = hash
         self.initiator = initiator
         self.first_period = first_period
@@ -113,9 +113,9 @@ class Proposal(Base):
 
 
 class VotingPeriod(Base):
-    __slots__ = ('index', 'epoch', 'first_level', 'start_time', 'last_level', 'end_time', 'kind', 'status', 'total_bakers', 'total_rolls', 'upvotes_quorum', 'proposals_count', 'top_upvotes', 'top_rolls', 'ballot_quorum', 'supermajority', 'yay_ballots', 'yay_rolls', 'nay_ballots', 'nay_rolls', 'pass_ballots', 'pass_rolls')
+    __slots__ = ('index', 'epoch', 'first_level', 'start_time', 'last_level', 'end_time', 'kind', 'status', 'total_bakers', 'total_rolls', 'upvotes_quorum', 'proposals_count', 'top_upvotes', 'top_rolls', 'ballots_quorum', 'supermajority', 'yay_ballots', 'yay_rolls', 'nay_ballots', 'nay_rolls', 'pass_ballots', 'pass_rolls')
 
-    def __init__(self, index, epoch, first_level, start_time, last_level, end_time, kind, status, total_bakers, total_rolls, upvotes_quorum, proposals_count, top_upvotes, top_rolls, ballot_quorum, supermajority, yay_ballots, yay_rolls, nay_ballots, nay_rolls, pass_ballots, pass_rolls):
+    def __init__(self, index, epoch, first_level, start_time, last_level, end_time, kind, status, total_bakers, total_rolls, upvotes_quorum, proposals_count, top_upvotes, top_rolls, ballots_quorum, supermajority, yay_ballots, yay_rolls, nay_ballots, nay_rolls, pass_ballots, pass_rolls):
         self.index = index
         self.epoch = epoch
         self.first_level = first_level
@@ -130,7 +130,7 @@ class VotingPeriod(Base):
         self.proposals_count = proposals_count
         self.top_upvotes = top_upvotes
         self.top_rolls = top_rolls
-        self.ballot_quorum = ballot_quorum
+        self.ballots_quorum = ballots_quorum
         self.supermajority = supermajority
         self.yay_ballots = yay_ballots
         self.yay_rolls = yay_rolls
@@ -165,7 +165,7 @@ class VotingPeriod(Base):
         proposals_count = data['proposalsCount']
         top_upvotes = data['topUpvotes']
         top_rolls = data['topRolls']
-        ballot_quorum = data['ballotQuorum']
+        ballots_quorum = data['ballotsQuorum']
         supermajority = data['supermajority']
         yay_ballots = data['yayBallots']
         yay_rolls = data['yayRolls']
@@ -179,7 +179,7 @@ class VotingPeriod(Base):
         if end_time:
             end_time = cls.to_datetime(end_time)
 
-        return cls(index, epoch, first_level, start_time, last_level, end_time, kind, status, total_bakers, total_rolls, upvotes_quorum, proposals_count, top_upvotes, top_rolls, ballot_quorum, supermajority, yay_ballots, yay_rolls, nay_ballots, nay_rolls, pass_ballots, pass_rolls)
+        return cls(index, epoch, first_level, start_time, last_level, end_time, kind, status, total_bakers, total_rolls, upvotes_quorum, proposals_count, top_upvotes, top_rolls, ballots_quorum, supermajority, yay_ballots, yay_rolls, nay_ballots, nay_rolls, pass_ballots, pass_rolls)
 
     @classmethod
     def get(cls, **kwargs):
