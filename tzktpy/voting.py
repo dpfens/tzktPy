@@ -384,8 +384,10 @@ class PeriodVoter(Base):
         self.status = status
 
     def __str__(self):
-        print(self.delegate)
-        return str(self.delegate)
+        delegate = self.delegate
+        if isinstance(delegate, dict):
+            delegate = delegate['address']
+        return delegate
 
     def __repr__(self):
         return '<%s %s delegate=%r, rolls=%r, status=%r>' % (self.__class__.__name__, id(self), self.delegate, self.rolls, self.status)
