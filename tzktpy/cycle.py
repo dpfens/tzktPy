@@ -70,7 +70,6 @@ class Cycle(Base):
         path = 'v1/cycles'
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
-        print(data)
         return [cls.from_api(item) for item in data]
 
     @classmethod
