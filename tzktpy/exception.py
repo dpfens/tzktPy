@@ -1,0 +1,2 @@
+class TZKTException(Exception):
+    pass

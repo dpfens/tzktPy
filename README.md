@@ -127,6 +127,29 @@ block = tzkt.block.Block.by_level(150000)
 blocks = tzkt.block.Block.get(level__gt=100000, level__lt=110000, limit=10000)
 ```
 
+#### Fetching Balances (Working with Bigmaps)
+```python
+import tzktpy as tzkt
+
+# fetch the contract bigmap for SMAK balances
+smartlink_address = 'KT1TwzD6zV3WeJ39ukuqxcfK2fJCnhvrdN1X'
+smak_balance_bigmap = tzkt.bigmap.BigMap.by_name(smartlink_address, name='balances')
+
+# fetch first 10,000 balances
+balance_keys = tzkt.bigmap.BigMapKey.by_bigmap(smak_balance_bigmap.ptr, limit=10000)
+
+# fetch balance of a specific account
+address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
+current_bigmap_key = tzkt.bigmap.BigMapKey.by_key(smak_balance_bigmap.ptr, address)
+
+# fetch historical balances
+historical_bigmap_key = tzkt.bigmap.BigMapKey.by_key(smak_balance_bigmap.ptr, address, level=1500000)
+
+# Fetch metadata about the SMAK token
+smak_token_metadata_bigmap = tzkt.bigmap.BigMap.by_name(smartlink_address, name='token_metadata')
+smak_metadata_keys = tzkt.bigmap.BigMapKey.by_bigmap(smak_token_metadata_bigmap.ptr, limit=10000)
+```
+
 ## Beta module
 The beta module is for API endpoints that may not be permanent fixtures of the tzktpy library.  Endpoints in the beta module may be renamed or removed from the beta module at any time, or may stop working.  Endpoints that become stable will be moved to another module in tzktpy.
 

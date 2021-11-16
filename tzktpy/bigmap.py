@@ -1,4 +1,8 @@
+"""
+
+"""
 from .base import Base
+from .exception import TZKTException
 __all__ = ('BigMap', 'BigMapType', 'BigMapKey', 'BigMapUpdate')
 
 
@@ -66,7 +70,7 @@ class BigMap(Base):
         """
         path = 'v1/bigmaps'
         params = cls.get_pagination_parameters(kwargs)
-        optional_base_params = ['contract', 'path', 'lastLevel', 'tags']
+        optional_base_params = ['contract', 'path', 'lastLevel', 'tags'] + list(cls.pagination_parameters)
         params, parsed_params = cls.prepare_modifiers(kwargs, include=optional_base_params)
         for param in parsed_params.get('tags', []):
             params[params] = ','.join(params[param])
@@ -138,6 +142,11 @@ class BigMap(Base):
             params['micheline'] = micheline
         response = cls._request(path, params=params, **kwargs)
         data = response.json()
+
+        if isinstance(data, dict):
+            errors = data.get('errors')
+            if errors:
+                raise TZKTException(errors)
         return [cls.from_api(item) for item in data]
 
     @classmethod
@@ -228,7 +237,7 @@ class BigMapUpdate(Base):
         return self.id
 
     def __repr__(self):
-        return '<%s %s id=%r, level=%r, timestamp=%r, contract=%r>' % (self.__class__.__name__, self.id, self.level, self.timestamp, self.contract)
+        return '<%s %s id=%r, level=%r, timestamp=%r, contract=%r>' % (self.__class__.__name__, id(self), self.id, self.level, self.timestamp, self.contract)
 
     @classmethod
     def from_api(cls, data):
@@ -272,7 +281,7 @@ class BigMapUpdate(Base):
             >>> bigmap_updates = BigMapUpdate.get(level__gt=100000)
         """
         path = 'v1/bigmaps/updates'
-        optional_base_params = ['bigmap', 'path', 'contract', 'action', 'value', 'level']
+        optional_base_params = ['bigmap', 'path', 'contract', 'action', 'value', 'level']  + list(cls.pagination_parameters)
         params, param_mappings = cls.prepare_modifiers(kwargs, include=optional_base_params)
         for param in param_mappings.get('tags', []):
             params[param] = ','.join(params[param])
@@ -295,6 +304,9 @@ class BigMapKey(Base):
         self.last_level = last_level
         self.updates = updates
 
+    def __repr__(self):
+        return '<%s %s active=%r, key=%r, value=%r>' % (self.__class__.__name__, id(self), self.active, self.key, self.value)
+
     @classmethod
     def from_api(cls, data):
         id = data['id']
@@ -302,9 +314,9 @@ class BigMapKey(Base):
         hash = data['hash']
         key = data['key']
         value = data['value']
-        first_level = data['firstLevel']
-        last_level = data['lastLevel']
-        updates = data['updates']
+        first_level = data.get('firstLevel')
+        last_level = data.get('lastLevel')
+        updates = data.get('updates')
         return cls(id, active, hash, key, value, first_level, last_level, updates)
 
     @classmethod
@@ -316,6 +328,7 @@ class BigMapKey(Base):
             id (int):  Bigmap Id.
 
         Keyword Parameters:
+            level (int):  The level at which to fetch the bigmap keys.
             active (bool): Filters keys by status.
             key (str):  Filters keys by JSON key. Note, this query parameter supports the following format: `?key{__path?}{__mode?}=...`, so you can specify a path to a particular field to filter by, for example: `?key__token_id=...`.
             path (str):  Filters updates by bigmap path.  Supports standard modifiers.
@@ -334,10 +347,19 @@ class BigMapKey(Base):
             >>> bigmap_id = 123
             >>> bigmap_keys = BigMapKey.by_bigmap(level__gt=100000)
         """
-        path = 'v1/bigmaps/%s/keys' % id
-        optional_base_params = ['key', 'value', 'lastLevel']
+        level = kwargs.pop('level', None)
+        if level:
+            path = 'v1/bigmaps/%s/historical_keys/%s' % (id, level)
+        else:
+            path = 'v1/bigmaps/%s/keys' % id
+        optional_base_params = ['key', 'value', 'lastLevel', 'level'] + list(cls.pagination_parameters)
         params, _ = cls.prepare_modifiers(kwargs, include=optional_base_params)
         response = cls._request(path, params=params, **kwargs)
+
+        is_empty = response.status_code == 204
+        if is_empty:
+            return []
+
         data = response.json()
         return [cls.from_api(item) for item in data]
 
@@ -351,6 +373,7 @@ class BigMapKey(Base):
             key (str):  Either a key hash (`expr123...`) or a plain value (`abcde...`). Even if the key is complex (an object or an array), you can specify it as is, for example, `/keys/{"address":"tz123","token":123}`.
 
         Keyword Parameters:
+            level (int):  The level at which to fetch the bigmap key.
             micheline (int): Format of the bigmap key and value type: 0 - JSON, 2 - Micheline.
             domain (str, optional):  The tzkt.io domain to use.  The domains correspond to the different Tezos networks.  Defaults to https://api.tzkt.io.
 
@@ -359,14 +382,23 @@ class BigMapKey(Base):
 
         Example:
             >>> bigmap_id = 123
-            >>> bigmap_keys = BigMapKey.by_bigmap(level__gt=100000)
+            >>> bigmap_keys = BigMapKey.by_key(bigmap_id, key='tz1...')
         """
-        path = 'v1/bigmaps/%s/keys/%s' % (id, key)
+        level = kwargs.pop('level', None)
+        if level:
+            path = 'v1/bigmaps/%s/historical_keys/%s/%s' % (id, level, key)
+        else:
+            path = 'v1/bigmaps/%s/keys/%s' % (id, key)
         params = dict()
         micheline = kwargs.pop('micheline', None)
         if micheline is not None:
             params['micheline'] = micheline
         response = cls._request(path, params=params, **kwargs)
+
+        is_empty = response.status_code == 204
+        if is_empty:
+            return None
+
         data = response.json()
         return cls.from_api(data)
 
