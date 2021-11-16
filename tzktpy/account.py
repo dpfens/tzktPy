@@ -158,7 +158,7 @@ class Account(AccountBase):
         Keyword Parameters:
             type (str):  Filters accounts by type (user, delegate, contract).  Supports standard modifiers.
             kind (str):  Filters accounts by contract kind (delegator_contract or smart_contract).  Supports standard modifiers.
-            delegate (str):  Filters accounts by delegate. Supprts standard modifier.
+            delegate (str):  Filters accounts by delegate. Supports standard modifier.
             balance (int):  Filters accounts by balance.  Support standard modifiers.
             staked (bool):  Filters accounts by participation in staking.
             lastActivity (date|datetime):  Filters accounts by last activity level (where the account was updated). Supports standard modifiers.

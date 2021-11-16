@@ -108,11 +108,12 @@ Tzkt supports fetching details on operations performed.
 ##### Fetch all Operations performed on an account
 ```python
 import tzktpy as tzkt
+
 address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
 operations = []
 page_number = 0
 while page:
-    page = Operation.by_address(address, offset__pg=page_number);
+    page = Operation.by_address(address, offset__pg=page_number)
     operations += page
     page_number += 1
 ```
@@ -143,7 +144,7 @@ address = 'tz1WEHHVMWxQUtkWAgrJBFGXjJ5YqZVgfPVE'
 current_bigmap_key = tzkt.bigmap.BigMapKey.by_key(smak_balance_bigmap.ptr, address)
 
 # fetch historical balances
-historical_bigmap_key = tzkt.bigmap.BigMapKey.by_key(smak_balance_bigmap.ptr, address, level=1500000)
+historical_bigmap_key = tzkt.bigmap.BigMapKey.by_key(smak_balance_bigmap.ptr, address, level=1600000)
 
 # Fetch metadata about the SMAK token
 smak_token_metadata_bigmap = tzkt.bigmap.BigMap.by_name(smartlink_address, name='token_metadata')
@@ -151,7 +152,7 @@ smak_metadata_keys = tzkt.bigmap.BigMapKey.by_bigmap(smak_token_metadata_bigmap.
 ```
 
 ## Beta module
-The beta module is for API endpoints that may not be permanent fixtures of the tzktpy library.  Endpoints in the beta module may be renamed or removed from the beta module at any time, or may stop working.  Endpoints that become stable will be moved to another module in tzktpy.
+The beta module is for API endpoints that may not be permanent fixtures of the `tzktpy` library.  Endpoints in the beta module may be renamed or removed from the beta module at any time, or may stop working.  Endpoints that become stable will be moved to another module in `tzktpy`.
 
 ## Contributions
 Contributions are welcome.  Feel free to submit issues and pull requests.
